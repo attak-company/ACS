@@ -80,7 +80,6 @@ class Schedule(db.Model):
     start_time = db.Column(db.String(5), nullable=False)  # HH:MM
     end_time = db.Column(db.String(5), nullable=False)    # HH:MM
     is_available = db.Column(db.Boolean, default=True)
-    schedule_type = db.Column(db.String(20), default='regular')  # regular, break, special
 
 class SpecialSchedule(db.Model):
     """特殊營業時間（臨時調休、節假日等）"""
@@ -564,6 +563,335 @@ def api_service_detail(service_id):
             db.session.commit()
             
             return jsonify({'message': '服務項目刪除成功'})
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'刪除失敗: {str(e)}'}), 500
+
+# 預約管理路由
+@app.route('/api/appointments', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@login_required
+def api_appointments():
+    """預約管理 API"""
+    # 獲取當前用戶的商家
+    merchant = Merchant.query.filter_by(user_id=current_user.id).first()
+    if not merchant:
+        return jsonify({'error': '請先設定店家資訊'}), 400
+    
+    if request.method == 'GET':
+        # 獲取所有預約
+        appointments = Appointment.query.filter_by(merchant_id=merchant.id).all()
+        return jsonify([{
+            'id': a.id,
+            'customer_name': a.customer_name,
+            'customer_phone': a.customer_phone,
+            'service_id': a.service_id,
+            'service_name': a.service.name if a.service else None,
+            'date': a.date.isoformat() if a.date else None,
+            'time': a.time,
+            'status': a.status,
+            'line_user_id': a.line_user_id,
+            'created_at': a.created_at.isoformat() if a.created_at else None
+        } for a in appointments])
+    
+    elif request.method == 'POST':
+        # 新增預約
+        try:
+            data = request.get_json()
+            
+            # 驗證必填欄位
+            if not data.get('customer_name') or not data.get('date') or not data.get('time'):
+                return jsonify({'error': '請填寫所有必填欄位'}), 400
+            
+            appointment = Appointment(
+                merchant_id=merchant.id,
+                customer_name=data['customer_name'],
+                customer_phone=data.get('customer_phone', ''),
+                service_id=data.get('service_id'),
+                date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
+                time=data['time'],
+                status=data.get('status', 'confirmed'),
+                line_user_id=data.get('line_user_id')
+            )
+            
+            db.session.add(appointment)
+            db.session.commit()
+            
+            return jsonify({
+                'message': '預約創建成功',
+                'appointment': {
+                    'id': appointment.id,
+                    'customer_name': appointment.customer_name,
+                    'customer_phone': appointment.customer_phone,
+                    'service_id': appointment.service_id,
+                    'service_name': appointment.service.name if appointment.service else None,
+                    'date': appointment.date.isoformat(),
+                    'time': appointment.time,
+                    'status': appointment.status,
+                    'line_user_id': appointment.line_user_id
+                }
+            }), 201
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'創建失敗: {str(e)}'}), 500
+    
+    elif request.method == 'PUT':
+        # 更新預約
+        try:
+            data = request.get_json()
+            appointment_id = data.get('id')
+            
+            appointment = Appointment.query.filter_by(
+                id=appointment_id, 
+                merchant_id=merchant.id
+            ).first()
+            
+            if not appointment:
+                return jsonify({'error': '預約不存在'}), 404
+            
+            # 更新欄位
+            if 'customer_name' in data:
+                appointment.customer_name = data['customer_name']
+            if 'customer_phone' in data:
+                appointment.customer_phone = data['customer_phone']
+            if 'service_id' in data:
+                appointment.service_id = data['service_id']
+            if 'date' in data:
+                appointment.date = datetime.strptime(data['date'], '%Y-%m-%d').date()
+            if 'time' in data:
+                appointment.time = data['time']
+            if 'status' in data:
+                appointment.status = data['status']
+            if 'line_user_id' in data:
+                appointment.line_user_id = data['line_user_id']
+            
+            db.session.commit()
+            
+            return jsonify({
+                'message': '預約更新成功',
+                'appointment': {
+                    'id': appointment.id,
+                    'customer_name': appointment.customer_name,
+                    'customer_phone': appointment.customer_phone,
+                    'service_id': appointment.service_id,
+                    'service_name': appointment.service.name if appointment.service else None,
+                    'date': appointment.date.isoformat(),
+                    'time': appointment.time,
+                    'status': appointment.status,
+                    'line_user_id': appointment.line_user_id
+                }
+            })
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'更新失敗: {str(e)}'}), 500
+    
+    elif request.method == 'DELETE':
+        # 刪除預約
+        try:
+            appointment_id = request.args.get('id')
+            
+            appointment = Appointment.query.filter_by(
+                id=appointment_id, 
+                merchant_id=merchant.id
+            ).first()
+            
+            if not appointment:
+                return jsonify({'error': '預約不存在'}), 404
+            
+            db.session.delete(appointment)
+            db.session.commit()
+            
+            return jsonify({'message': '預約刪除成功'})
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'刪除失敗: {str(e)}'}), 500
+
+# 營業時間管理路由
+@app.route('/api/schedule', methods=['GET', 'POST'])
+@login_required
+def api_schedule():
+    """營業時間 API"""
+    try:
+        # 獲取當前用戶的商家
+        merchant = Merchant.query.filter_by(user_id=current_user.id).first()
+        if not merchant:
+            return jsonify({'error': '請先設定店家資訊'}), 400
+        
+        if request.method == 'GET':
+            # 獲取所有營業時間
+            try:
+                schedules = Schedule.query.filter_by(merchant_id=merchant.id).all()
+                return jsonify([{
+                    'id': s.id,
+                    'day_of_week': s.day_of_week,
+                    'start_time': s.start_time,
+                    'end_time': s.end_time,
+                    'is_available': s.is_available,
+                    'schedule_type': 'regular'  # 暫時固定值
+                } for s in schedules])
+            except Exception as e:
+                print(f"Error fetching schedules: {e}")
+                # 如果沒有營業時間，返回空數組
+                return jsonify([])
+        
+        elif request.method == 'POST':
+            # 保存營業時間
+            try:
+                data = request.get_json()
+                print(f"Received schedule data: {data}")  # Debug log
+                
+                # 檢查數據類型
+                if not isinstance(data, list):
+                    return jsonify({'error': '數據格式錯誤，需要數組格式'}), 400
+                
+                # 刪除舊的營業時間
+                Schedule.query.filter_by(merchant_id=merchant.id).delete()
+                
+                # 新增營業時間
+                for schedule_item in data:
+                    # 驗證必填欄位
+                    if not all(key in schedule_item for key in ['day_of_week', 'start_time', 'end_time']):
+                        return jsonify({'error': '缺少必填欄位'}), 400
+                    
+                    schedule = Schedule(
+                        merchant_id=merchant.id,
+                        day_of_week=schedule_item['day_of_week'],
+                        start_time=schedule_item['start_time'],
+                        end_time=schedule_item['end_time'],
+                        is_available=schedule_item.get('is_available', True)
+                    )
+                    db.session.add(schedule)
+                
+                db.session.commit()
+                return jsonify({'message': '營業時間更新成功'})
+                
+            except Exception as e:
+                db.session.rollback()
+                print(f"Error saving schedule: {e}")  # Debug log
+                return jsonify({'error': f'更新失敗: {str(e)}'}), 500
+    
+    except Exception as e:
+        print(f"General error in schedule API: {e}")
+        return jsonify({'error': f'系統錯誤: {str(e)}'}), 500
+
+@app.route('/api/special-schedule', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@login_required
+def api_special_schedule():
+    """特殊營業時間 API"""
+    # 獲取當前用戶的商家
+    merchant = Merchant.query.filter_by(user_id=current_user.id).first()
+    if not merchant:
+        return jsonify({'error': '請先設定店家資訊'}), 400
+    
+    if request.method == 'GET':
+        # 獲取所有特殊營業時間
+        special_schedules = SpecialSchedule.query.filter_by(merchant_id=merchant.id).all()
+        return jsonify([{
+            'id': s.id,
+            'date': s.date.isoformat() if s.date else None,
+            'is_closed': s.is_closed,
+            'open_time': s.open_time,
+            'close_time': s.close_time,
+            'reason': s.reason
+        } for s in special_schedules])
+    
+    elif request.method == 'POST':
+        # 新增特殊營業時間
+        try:
+            data = request.get_json()
+            
+            special_schedule = SpecialSchedule(
+                merchant_id=merchant.id,
+                date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
+                is_closed=data.get('is_closed', False),
+                open_time=data.get('open_time'),
+                close_time=data.get('close_time'),
+                reason=data.get('reason', '')
+            )
+            
+            db.session.add(special_schedule)
+            db.session.commit()
+            
+            return jsonify({
+                'message': '特殊營業時間創建成功',
+                'special_schedule': {
+                    'id': special_schedule.id,
+                    'date': special_schedule.date.isoformat(),
+                    'is_closed': special_schedule.is_closed,
+                    'open_time': special_schedule.open_time,
+                    'close_time': special_schedule.close_time,
+                    'reason': special_schedule.reason
+                }
+            }), 201
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'創建失敗: {str(e)}'}), 500
+    
+    elif request.method == 'PUT':
+        # 更新特殊營業時間
+        try:
+            data = request.get_json()
+            schedule_id = data.get('id')
+            
+            special_schedule = SpecialSchedule.query.filter_by(
+                id=schedule_id, 
+                merchant_id=merchant.id
+            ).first()
+            
+            if not special_schedule:
+                return jsonify({'error': '特殊營業時間不存在'}), 404
+            
+            # 更新欄位
+            if 'date' in data:
+                special_schedule.date = datetime.strptime(data['date'], '%Y-%m-%d').date()
+            if 'is_closed' in data:
+                special_schedule.is_closed = data['is_closed']
+            if 'open_time' in data:
+                special_schedule.open_time = data['open_time']
+            if 'close_time' in data:
+                special_schedule.close_time = data['close_time']
+            if 'reason' in data:
+                special_schedule.reason = data['reason']
+            
+            db.session.commit()
+            
+            return jsonify({
+                'message': '特殊營業時間更新成功',
+                'special_schedule': {
+                    'id': special_schedule.id,
+                    'date': special_schedule.date.isoformat(),
+                    'is_closed': special_schedule.is_closed,
+                    'open_time': special_schedule.open_time,
+                    'close_time': special_schedule.close_time,
+                    'reason': special_schedule.reason
+                }
+            })
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'更新失敗: {str(e)}'}), 500
+    
+    elif request.method == 'DELETE':
+        # 刪除特殊營業時間
+        try:
+            schedule_id = request.args.get('id')
+            
+            special_schedule = SpecialSchedule.query.filter_by(
+                id=schedule_id, 
+                merchant_id=merchant.id
+            ).first()
+            
+            if not special_schedule:
+                return jsonify({'error': '特殊營業時間不存在'}), 404
+            
+            db.session.delete(special_schedule)
+            db.session.commit()
+            
+            return jsonify({'message': '特殊營業時間刪除成功'})
             
         except Exception as e:
             db.session.rollback()
