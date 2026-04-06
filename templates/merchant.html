@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商家後台 - LINE AI 智能客服預約系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <style>
+        /* Apple-style Design System */
+        :root {
+            --apple-black: #000000;
+            --apple-white: #ffffff;
+            --apple-gray-50: #f9f9f9;
+            --apple-gray-100: #f5f5f7;
+            --apple-gray-200: #e8e8ed;
+            --apple-gray-300: #d2d2d7;
+            --apple-gray-400: #b0b0b8;
+            --apple-gray-500: #8e8e93;
+            --apple-gray-600: #636366;
+            --apple-gray-700: #48484a;
+            --apple-gray-800: #3a3a3c;
+            --apple-gray-900: #1d1d1f;
+            --apple-blue: #007aff;
+            --apple-green: #34c759;
+            --apple-red: #ff3b30;
+            --apple-orange: #ff9500;
+            --apple-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            --apple-shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --apple-border-radius: 12px;
+            --apple-border-radius-sm: 8px;
+            --apple-border-radius-lg: 16px;
+            --apple-transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--apple-white);
+            color: var(--apple-black);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            min-height: 100vh;
+            background: var(--apple-black);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--apple-gray-200);
+        }
+
+        .sidebar .nav-link {
+            color: var(--apple-gray-400);
+            padding: 12px 20px;
+            margin: 4px 12px;
+            border-radius: var(--apple-border-radius);
+            transition: var(--apple-transition);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .sidebar .nav-link:hover {
+            color: var(--apple-white);
+            background: rgba(255,255,255,0.1);
+            transform: translateX(4px);
+        }
+
+        .sidebar .nav-link.active {
+            color: var(--apple-white);
+            background: var(--apple-blue);
+            box-shadow: var(--apple-shadow-sm);
+        }
+
+        .sidebar .nav-link i {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: var(--apple-gray-50);
+            min-height: 100vh;
+        }
+
+        .content-section {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: var(--apple-border-radius);
+            box-shadow: var(--apple-shadow-sm);
+            background: var(--apple-white);
+            margin-bottom: 24px;
+            transition: var(--apple-transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--apple-shadow);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background: var(--apple-white);
+            border-bottom: 1px solid var(--apple-gray-200);
+            padding: 20px 24px;
+            border-radius: var(--apple-border-radius) var(--apple-border-radius) 0 0;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--apple-black);
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        /* Forms */
+        .form-control {
+            border: 1px solid var(--apple-gray-300);
+            border-radius: var(--apple-border-radius-sm);
+            padding: 12px 16px;
+            font-size: 16px;
+            transition: var(--apple-transition);
+            background: var(--apple-white);
+        }
+
+        .form-control:focus {
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
+            outline: none;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--apple-black);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-text {
+            color: var(--apple-gray-500);
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: var(--apple-border-radius-sm);
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+            transition: var(--apple-transition);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--apple-blue);
+            color: var(--apple-white);
+        }
+
+        .btn-primary:hover {
+            background: #0056cc;
+            transform: translateY(-1px);
+            box-shadow: var(--apple-shadow-sm);
+        }
+
+        .btn-outline-primary {
+            background: transparent;
+            color: var(--apple-blue);
+            border: 2px solid var(--apple-blue);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--apple-blue);
+            color: var(--apple-white);
+        }
+
+        .btn-outline-success {
+            background: transparent;
+            color: var(--apple-green);
+            border: 2px solid var(--apple-green);
+        }
+
+        .btn-outline-success:hover {
+            background: var(--apple-green);
+            color: var(--apple-white);
+        }
+
+        .btn-outline-danger {
+            background: transparent;
+            color: var(--apple-red);
+            border: 2px solid var(--apple-red);
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--apple-red);
+            color: var(--apple-white);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        /* Alerts */
+        .alert {
+            border: none;
+            border-radius: var(--apple-border-radius);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: rgba(52,199,89,0.1);
+            color: var(--apple-green);
+            border-left: 4px solid var(--apple-green);
+        }
+
+        .alert-info {
+            background: rgba(0,122,255,0.1);
+            color: var(--apple-blue);
+            border-left: 4px solid var(--apple-blue);
+        }
+
+        .alert-warning {
+            background: rgba(255,149,0,0.1);
+            color: var(--apple-orange);
+            border-left: 4px solid var(--apple-orange);
+        }
+
+        .alert-danger {
+            background: rgba(255,59,48,0.1);
+            color: var(--apple-red);
+            border-left: 4px solid var(--apple-red);
+        }
+
+        /* Service Items */
+        .service-item {
+            background: var(--apple-white);
+            border: 1px solid var(--apple-gray-200);
+            border-radius: var(--apple-border-radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: var(--apple-transition);
+        }
+
+        .service-item:hover {
+            box-shadow: var(--apple-shadow-sm);
+            transform: translateY(-2px);
+            border-color: var(--apple-gray-300);
+        }
+
+        /* Schedule Slots */
+        .schedule-slot {
+            background: var(--apple-white);
+            border: 1px solid var(--apple-gray-200);
+            border-radius: var(--apple-border-radius-sm);
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: var(--apple-transition);
+        }
+
+        .schedule-slot:hover {
+            border-color: var(--apple-blue);
+            box-shadow: var(--apple-shadow-sm);
+        }
+
+        .day-schedules {
+            background: var(--apple-gray-50);
+            border-radius: var(--apple-border-radius);
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--apple-gray-200);
+        }
+
+        /* Modal */
+        .modal-content {
+            border: none;
+            border-radius: var(--apple-border-radius-lg);
+            box-shadow: var(--apple-shadow);
+            background: var(--apple-white);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--apple-gray-200);
+            padding: 20px 24px;
+            border-radius: var(--apple-border-radius-lg) var(--apple-border-radius-lg) 0 0;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--apple-gray-200);
+            padding: 16px 24px;
+            border-radius: 0 0 var(--apple-border-radius-lg) var(--apple-border-radius-lg);
+        }
+
+        /* Input Group */
+        .input-group {
+            border-radius: var(--apple-border-radius-sm);
+            overflow: hidden;
+        }
+
+        .input-group-text {
+            background: var(--apple-gray-100);
+            border: 1px solid var(--apple-gray-300);
+            color: var(--apple-gray-600);
+            font-weight: 500;
+        }
+
+        /* Form Select */
+        .form-select {
+            border: 1px solid var(--apple-gray-300);
+            border-radius: var(--apple-border-radius-sm);
+            padding: 12px 16px;
+            font-size: 16px;
+            background: var(--apple-white);
+            transition: var(--apple-transition);
+        }
+
+        .form-select:focus {
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
+            outline: none;
+        }
+
+        /* Badge */
+        .badge {
+            border-radius: var(--apple-border-radius-sm);
+            font-weight: 600;
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+
+        .bg-success {
+            background: var(--apple-green) !important;
+        }
+
+        .bg-warning {
+            background: var(--apple-orange) !important;
+        }
+
+        /* Loading Spinner */
+        .spinner-border {
+            border: 2px solid var(--apple-gray-200);
+            border-top: 2px solid var(--apple-blue);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                min-height: auto;
+                height: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .card-body {
+                padding: 16px;
+            }
+            
+            .btn {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--apple-gray-100);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--apple-gray-400);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--apple-gray-500);
+        }
+
+        /* Focus States */
+        .btn:focus {
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.2);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
+        }
+
+        /* Transitions */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body data-username="{{ current_user.username if current_user else 'unknown' }}">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky pt-4">
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <div style="width: 60px; height: 60px; background: var(--apple-gray-100); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-store fa-2x" style="color: var(--apple-gray-600);"></i>
+                            </div>
+                        </div>
+                        <h6 class="text-white mb-0" style="font-weight: 600;">商家後台</h6>
+                        <small class="text-white-50" style="font-size: 12px;">LINE AI 智能客服</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-section="profile">
+                                <i class="fas fa-user"></i>店家資料
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="services">
+                                <i class="fas fa-concierge-bell"></i>服務項目
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="schedule">
+                                <i class="fas fa-clock"></i>營業時間
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="calendar">
+                                <i class="fas fa-calendar-alt"></i>行事曆
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="appointments">
+                                <i class="fas fa-calendar-check"></i>預約管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="line">
+                                <i class="fab fa-line"></i>LINE 設定
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link" href="/logout" style="color: var(--apple-red);">
+                                <i class="fas fa-sign-out-alt"></i>登出
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2" id="section-title" style="font-weight: 600; color: var(--apple-black);">店家資料</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshCurrentSection()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Section -->
+                <div id="dashboard-section" class="content-section">
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-calendar-check fa-2x text-primary mb-2"></i>
+                                    <h5 class="card-title">今日預約</h5>
+                                    <h3 class="text-primary" id="today-appointments">0</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-users fa-2x text-success mb-2"></i>
+                                    <h5 class="card-title">本月預約</h5>
+                                    <h3 class="text-success" id="month-appointments">0</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-concierge-bell fa-2x text-info mb-2"></i>
+                                    <h5 class="card-title">服務項目</h5>
+                                    <h3 class="text-info" id="total-services">0</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-robot fa-2x text-warning mb-2"></i>
+                                    <h5 class="card-title">AI 對話次數</h5>
+                                    <h3 class="text-warning" id="ai-conversations">0</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>今日預約時間表</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="mini-calendar"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>最新預約</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="recent-appointments">
+                                        <p class="text-muted">暫無預約記錄</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Basic Settings Section -->
+                <div id="basic-section" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>基本設定</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="basic-form">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">店家名稱</label>
+                                        <input type="text" class="form-control" id="shop-name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">聯絡電話</label>
+                                        <input type="tel" class="form-control" id="shop-phone">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">店家地址</label>
+                                    <input type="text" class="form-control" id="shop-address">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">店家描述</label>
+                                    <textarea class="form-control" id="shop-description" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">到店須知</label>
+                                    <textarea class="form-control" id="arrival-info" rows="3" 
+                                              placeholder="例如：提供停車位、請提前10分鐘到達等"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">AI 語氣風格</label>
+                                    <select class="form-select" id="ai-tone">
+                                        <option value="friendly">友善親切</option>
+                                        <option value="professional">專業正式</option>
+                                        <option value="casual">輕鬆隨意</option>
+                                        <option value="formal">莊重正式</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>儲存設定
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services Section -->
+                <div id="services-section" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5>服務項目管理</h5>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#serviceModal">
+                                <i class="fas fa-plus me-2"></i>新增服務
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="services-list">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin"></i> 載入中...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schedule Section -->
+                <div id="schedule-section" class="content-section" style="display: none;">
+                    <!-- 營業時間設定 -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-clock me-2"></i>營業時間設定</h5>
+                            <small class="text-muted">支援多時段營業，例如：上午 9:00-12:00，下午 14:00-18:00</small>
+                        </div>
+                        <div class="card-body">
+                            <form id="schedule-form">
+                                <div id="schedule-list">
+                                    <!-- Schedule items will be generated here -->
+                                </div>
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="addScheduleSlot()">
+                                        <i class="fas fa-plus me-1"></i>新增時段
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>儲存營業時間
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 特殊營業時間 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-calendar-alt me-2"></i>特殊營業時間</h5>
+                            <small class="text-muted">臨時調休、節假日、特殊營業時間等</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#specialScheduleModal">
+                                    <i class="fas fa-plus me-2"></i>新增特殊營業時間
+                                </button>
+                            </div>
+                            <div id="special-schedule-list">
+                                <!-- Special schedule items will be generated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Section -->
+                <div id="calendar-section" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>行事曆檢視</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="calendar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointments Section -->
+                <div id="appointments-section" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>預約管理</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="appointments-list">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin"></i> 載入中...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LINE Settings Section -->
+                <div id="line-section" class="content-section" style="display: none;">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fab fa-line me-2"></i>LINE Bot 設定</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="line-form">
+                                <div class="mb-3">
+                                    <label class="form-label">LINE Channel Access Token</label>
+                                    <input type="text" class="form-control" id="line-access-token" 
+                                           placeholder="請輸入 LINE Channel Access Token">
+                                    <div class="form-text">從 LINE Developers Console 取得</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">LINE Channel Secret</label>
+                                    <input type="text" class="form-control" id="line-secret" 
+                                           placeholder="請輸入 LINE Channel Secret">
+                                    <div class="form-text">從 LINE Developers Console 取得</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>儲存 LINE 設定
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Webhook 資訊 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-link me-2"></i>Webhook 設定資訊</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-success mb-3">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong>您的 LINE Bot 識別資訊：</strong>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-primary">
+                                        <i class="fas fa-user me-1"></i>您的用戶名稱
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light" id="merchant-username" readonly>
+                                        <button class="btn btn-outline-primary" onclick="copyMerchantUsername()">
+                                            <i class="fas fa-copy"></i> 複製
+                                        </button>
+                                    </div>
+                                    <div class="form-text">這是您在系統中的唯一用戶名稱</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-success">
+                                        <i class="fas fa-globe me-1"></i>您的 Webhook URL
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light" id="webhook-url" readonly>
+                                        <button class="btn btn-outline-success" onclick="copyWebhookUrl()">
+                                            <i class="fas fa-copy"></i> 複製
+                                        </button>
+                                    </div>
+                                    <div class="form-text">請將此 URL 設定到 LINE Developers</div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>設定步驟：</strong>
+                                <ol class="mb-0 mt-2">
+                                    <li>前往 <a href="https://developers.line.biz/" target="_blank">LINE Developers Console</a></li>
+                                    <li>創建新的 Provider 和 Channel (Messaging API)</li>
+                                    <li>複製上方顯示的 <strong>Webhook URL</strong></li>
+                                    <li>在 LINE Developers 中設定 Webhook URL</li>
+                                    <li>複製 Channel Access Token 和 Channel Secret 到上方表單</li>
+                                    <li>點擊「儲存 LINE 設定」完成配置</li>
+                                </ol>
+                            </div>
+
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>重要提醒：</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>請確保 Webhook URL 完全正確，包含您的 Merchant ID</li>
+                                    <li>每個用戶都有獨立的 Merchant ID 和 Webhook URL</li>
+                                    <li>設定完成後，請測試 LINE Bot 是否正常回覆</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Service Modal -->
+    <div class="modal fade" id="serviceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="serviceModalLabel">新增服務項目</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="service-form">
+                        <div class="mb-3">
+                            <label class="form-label">服務名稱</label>
+                            <input type="text" class="form-control" id="service-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">服務描述</label>
+                            <textarea class="form-control" id="service-description" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">服務時長 (分鐘)</label>
+                                <input type="number" class="form-control" id="service-duration" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">服務價格</label>
+                                <input type="number" class="form-control" id="service-price" step="0.01">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-service">儲存服務</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Special Schedule Modal -->
+    <div class="modal fade" id="specialScheduleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增特殊營業時間</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="special-schedule-form">
+                        <div class="mb-3">
+                            <label class="form-label">日期</label>
+                            <input type="date" class="form-control" id="special-date" required>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="special-closed">
+                                <label class="form-check-label" for="special-closed">
+                                    休息日
+                                </label>
+                            </div>
+                        </div>
+                        <div id="special-time-fields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">開店時間</label>
+                                    <input type="time" class="form-control" id="special-open-time">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">關店時間</label>
+                                    <input type="time" class="form-control" id="special-close-time">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">原因</label>
+                            <input type="text" class="form-control" id="special-reason" placeholder="例如：國慶日、臨時休假、店內活動等">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-special-schedule">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/zh-tw.js"></script>
+    <script>
+        // Global variables
+        let currentSection = 'dashboard';
+        let calendar = null;
+        
+        // Test function to verify JavaScript is working
+        function testJavaScript() {
+            console.log('JavaScript is working!');
+            alert('JavaScript 測試成功！');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, testing JavaScript...');
+            testJavaScript();
+            
+            initializeSidebar();
+            loadDashboardData();
+            loadBasicSettings();
+            setupWebhookUrl();
+        });
+
+        // Sidebar navigation
+        function initializeSidebar() {
+            const navLinks = document.querySelectorAll('.nav-link[data-section]');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.dataset.section;
+                    refreshCurrentSection();
+                    showSection(section);
+                    
+                    // Update active state
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        function refreshCurrentSection() {
+            const currentSection = document.querySelector('.content-section.active');
+            if (currentSection) {
+                const sectionId = currentSection.id.replace('-section', '');
+                loadSection(sectionId);
+            }
+        }
+
+        // Enhanced section switching with proper loading
+        function showSection(sectionId) {
+            console.log('Switching to section:', sectionId);
+            
+            // Hide all sections with fade out
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    section.style.display = 'none';
+                }, 300);
+            });
+
+            // Update nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+            // Show selected section with fade in
+            setTimeout(() => {
+                const targetSection = document.getElementById(`${sectionId}-section`);
+                if (targetSection) {
+                    targetSection.style.display = 'block';
+                    setTimeout(() => {
+                        targetSection.style.opacity = '1';
+                        targetSection.style.transform = 'translateY(0)';
+                    }, 50);
+                    
+                    // Load section-specific data
+                    switch(sectionId) {
+                        case 'services':
+                            console.log('Loading services for services section');
+                            loadServices();
+                            break;
+                        case 'schedule':
+                            loadSchedule();
+                            break;
+                        case 'calendar':
+                            initializeCalendar();
+                            break;
+                        case 'appointments':
+                            loadAppointments();
+                            break;
+                        case 'line':
+                            loadLineSettings();
+                            break;
+                    }
+                }
+            }, 350);
+
+            // Update title
+            const titles = {
+                'profile': '店家資料',
+                'services': '服務項目',
+                'schedule': '營業時間',
+                'calendar': '行事曆',
+                'appointments': '預約管理',
+                'line': 'LINE 設定'
+            };
+            document.getElementById('section-title').textContent = titles[sectionId] || '商家後台';
+        }
+        
+        // Dashboard functions
+        async function loadDashboardData() {
+            try {
+                // Load statistics
+                const response = await fetch('/api/appointments');
+                const appointments = await response.json();
+                
+                // Calculate statistics
+                const today = new Date().toISOString().split('T')[0];
+                const todayAppointments = appointments.filter(a => a.date === today);
+                const currentMonth = new Date().getMonth();
+                const monthAppointments = appointments.filter(a => {
+                    const appointmentDate = new Date(a.date);
+                    return appointmentDate.getMonth() === currentMonth;
+                });
+                
+                document.getElementById('today-appointments').textContent = todayAppointments.length;
+                document.getElementById('month-appointments').textContent = monthAppointments.length;
+                
+                // Load services count
+                const servicesResponse = await fetch('/api/services');
+                const services = await servicesResponse.json();
+                document.getElementById('total-services').textContent = services.length;
+                
+                // Load recent appointments
+                const recentAppointments = appointments.slice(-5).reverse();
+                const recentHtml = recentAppointments.map(a => `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>${a.customer_name || '未提供'}</strong><br>
+                            <small class="text-muted">${a.service_name} - ${a.date} ${a.time}</small>
+                        </div>
+                        <span class="badge bg-success">${a.status}</span>
+                    </div>
+                `).join('');
+                
+                document.getElementById('recent-appointments').innerHTML = recentHtml || 
+                    '<p class="text-muted">暫無預約記錄</p>';
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Basic settings functions
+        async function loadBasicSettings() {
+            try {
+                const response = await fetch('/api/merchant');
+                const merchant = await response.json();
+                
+                if (merchant.id) {
+                    document.getElementById('shop-name').value = merchant.name || '';
+                    document.getElementById('shop-phone').value = merchant.phone || '';
+                    document.getElementById('shop-address').value = merchant.address || '';
+                    document.getElementById('shop-description').value = merchant.description || '';
+                    document.getElementById('arrival-info').value = merchant.arrival_info || '';
+                    document.getElementById('ai-tone').value = merchant.ai_tone || 'friendly';
+                }
+            } catch (error) {
+                console.error('Error loading basic settings:', error);
+            }
+        }
+
+        document.getElementById('basic-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const shopName = document.getElementById('shop-name').value.trim();
+            if (!shopName) {
+                showAlert('店家名稱為必填欄位', 'danger');
+                return;
+            }
+            
+            const data = {
+                name: shopName,
+                phone: document.getElementById('shop-phone').value,
+                address: document.getElementById('shop-address').value,
+                description: document.getElementById('shop-description').value,
+                arrival_info: document.getElementById('arrival-info').value,
+                ai_tone: document.getElementById('ai-tone').value
+            };
+            
+            try {
+                const response = await fetch('/api/merchant', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showAlert('基本設定已儲存', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showAlert(errorData.error || '儲存失敗', 'danger');
+                }
+            } catch (error) {
+                console.error('Error saving basic settings:', error);
+                showAlert('儲存失敗', 'danger');
+            }
+        });
+
+        // Edit and Delete Service functions
+        async function editService(serviceId) {
+            console.log('Editing service:', serviceId); // Debug
+            
+            // Simple test first
+            console.log('Testing basic fetch...');
+            try {
+                const testResponse = await fetch('/api/services');
+                console.log('Test fetch response:', testResponse);
+            } catch (error) {
+                console.error('Test fetch failed:', error);
+            }
+            
+            try {
+                console.log('Fetching service data...'); // Debug
+                const response = await fetch(`/api/services/${serviceId}`);
+                console.log('Fetch response:', response); // Debug
+                const service = await response.json();
+                
+                console.log('Service data:', service); // Debug
+                
+                if (service) {
+                    console.log('Populating modal with service data...'); // Debug
+                    document.getElementById('service-name').value = service.name;
+                    document.getElementById('service-description').value = service.description || '';
+                    document.getElementById('service-duration').value = service.duration;
+                    document.getElementById('service-price').value = service.price;
+                    
+                    console.log('Modal elements populated'); // Debug
+                    
+                    // Change modal title and button
+                    document.getElementById('serviceModalLabel').textContent = '編輯服務項目';
+                    document.getElementById('save-service').textContent = '更新服務';
+                    
+                    // Store service ID for update
+                    document.getElementById('save-service').setAttribute('data-service-id', serviceId);
+                    
+                    console.log('Showing modal...'); // Debug
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('serviceModal'));
+                    modal.show();
+                    console.log('Modal should be visible now'); // Debug
+                } else {
+                    console.log('Service not found!'); // Debug
+                }
+            } catch (error) {
+                console.error('Error loading service:', error);
+                showAlert('載入服務失敗', 'danger');
+            }
+        }
+
+        async function deleteService(serviceId) {
+            console.log('Deleting service:', serviceId); // Debug
+            if (!confirm('確定要刪除這個服務項目嗎？')) {
+                console.log('User cancelled deletion'); // Debug
+                return;
+            }
+            
+            try {
+                console.log('Sending DELETE request...'); // Debug
+                const response = await fetch(`/api/services/${serviceId}`, {
+                    method: 'DELETE'
+                });
+                
+                console.log('Delete response:', response); // Debug
+                
+                if (response.ok) {
+                    console.log('Delete successful, reloading services...'); // Debug
+                    showAlert('服務項目已刪除', 'success');
+                    loadServices();
+                } else {
+                    console.log('Delete failed, getting error message...'); // Debug
+                    const error = await response.json();
+                    console.log('Error message:', error); // Debug
+                    showAlert(error.error || '刪除失敗', 'danger');
+                }
+            } catch (error) {
+                console.error('Error deleting service:', error);
+                showAlert('刪除失敗', 'danger');
+            }
+        }
+
+        // Services functions
+        async function loadServices() {
+            console.log('Loading services...');
+            try {
+                const response = await fetch('/api/services');
+                const services = await response.json();
+                
+                const html = services.map(service => `
+                    <div class="service-item p-3 border rounded mb-2">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">${service.name}</h6>
+                                <p class="mb-1 text-muted">${service.description || '無描述'}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>${service.duration} 分鐘
+                                    <i class="fas fa-dollar-sign ms-2 me-1"></i>${service.price || 0}
+                                </small>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary me-1" data-service-id="${service.id}" data-action="edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" data-service-id="${service.id}" data-action="delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('services-list').innerHTML = html || 
+                    '<p class="text-center text-muted">尚未設定服務項目</p>';
+                
+                // Add event listeners for service buttons
+                document.getElementById('services-list').addEventListener('click', function(e) {
+                    const button = e.target.closest('button');
+                    if (!button) return;
+                    
+                    const serviceId = button.getAttribute('data-service-id');
+                    const action = button.getAttribute('data-action');
+                    
+                    console.log('Button clicked:', { serviceId, action }); // Debug
+                    
+                    if (action === 'edit') {
+                        console.log('Calling editService with ID:', serviceId);
+                        editService(serviceId);
+                    } else if (action === 'delete') {
+                        console.log('Calling deleteService with ID:', serviceId);
+                        deleteService(serviceId);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading services:', error);
+                document.getElementById('services-list').innerHTML = 
+                    '<p class="text-center text-danger">載入失敗</p>';
+            }
+        }
+
+        document.getElementById('save-service').addEventListener('click', async function() {
+            const serviceId = this.getAttribute('data-service-id');
+            console.log('Save button clicked, serviceId:', serviceId); // Debug
+            
+            const data = {
+                name: document.getElementById('service-name').value,
+                description: document.getElementById('service-description').value,
+                duration: parseInt(document.getElementById('service-duration').value),
+                price: parseFloat(document.getElementById('service-price').value) || 0
+            };
+            
+            console.log('Service data to save:', data); // Debug
+            
+            try {
+                const url = serviceId ? `/api/services/${serviceId}` : '/api/services';
+                const method = serviceId ? 'PUT' : 'POST';
+                
+                console.log('Request URL:', url, 'Method:', method); // Debug
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('Save response:', response); // Debug
+                
+                if (response.ok) {
+                    showAlert(serviceId ? '服務項目已更新' : '服務項目已新增', 'success');
+                    
+                    // 關閉模態框
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('serviceModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    // 等待模態框完全關閉後再重置
+                    setTimeout(() => {
+                        // 重置表單和模態框狀態
+                        document.getElementById('service-form').reset();
+                        document.getElementById('serviceModalLabel').textContent = '新增服務項目';
+                        this.textContent = '新增服務';
+                        this.disabled = false;
+                        this.removeAttribute('data-service-id');
+                        
+                        // 清理所有可能的 backdrop
+                        document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                            backdrop.remove();
+                        });
+                        document.body.classList.remove('modal-open');
+                        
+                        // 重新載入服務列表
+                        loadServices();
+                    }, 300);
+                } else {
+                    const error = await response.json();
+                    console.log('Save failed, error:', error);
+                    showAlert(error.error || (serviceId ? '更新失敗' : '新增失敗'), 'danger');
+                }
+            } catch (error) {
+                console.error('Error saving service:', error);
+                showAlert(serviceId ? '更新失敗' : '新增失敗', 'danger');
+            }
+        });
+
+        // Schedule functions
+        let scheduleData = []; // 存儲營業時間數據
+        
+        function loadSchedule() {
+            fetch('/api/schedule')
+                .then(response => response.json())
+                .then(data => {
+                    scheduleData = data;
+                    renderSchedule();
+                    loadSpecialSchedule(); // 載入特殊營業時間
+                })
+                .catch(error => {
+                    console.error('Error loading schedule:', error);
+                    showAlert('載入營業時間失敗', 'danger');
+                });
+        }
+        
+        function renderSchedule() {
+            const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+            let html = '';
+            
+            // 按星期幾分組
+            const schedulesByDay = {};
+            for (let i = 0; i < 7; i++) {
+                schedulesByDay[i] = [];
+            }
+            
+            scheduleData.forEach(schedule => {
+                schedulesByDay[schedule.day_of_week].push(schedule);
+            });
+            
+            // 渲染每一天的營業時間
+            for (let i = 0; i < 7; i++) {
+                const daySchedules = schedulesByDay[i];
+                html += `
+                    <div class="schedule-day mb-4 p-3 border rounded">
+                        <h6 class="mb-3">${days[i]}</h6>
+                        <div class="day-schedules" data-day="${i}">
+                `;
+                
+                if (daySchedules.length === 0) {
+                    html += `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>休息日
+                        </div>
+                    `;
+                } else {
+                    daySchedules.forEach((schedule, index) => {
+                        html += `
+                            <div class="schedule-slot mb-2 p-2 bg-light rounded">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="input-group input-group-sm">
+                                            <input type="time" class="form-control" name="start_time_${i}_${index}" value="${schedule.start_time}" required>
+                                            <span class="input-group-text">至</span>
+                                            <input type="time" class="form-control" name="end_time_${i}_${index}" value="${schedule.end_time}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="available_${i}_${index}" ${schedule.is_available ? 'checked' : ''}>
+                                            <label class="form-check-label">營業</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeScheduleSlot(this)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                html += `
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addScheduleSlot(${i})">
+                            <i class="fas fa-plus me-1"></i>新增時段
+                        </button>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('schedule-list').innerHTML = html;
+        }
+        
+        function addScheduleSlot(dayIndex = null) {
+            if (dayIndex === null) {
+                // 如果沒有指定日期，新增到第一個可用的日期
+                for (let i = 0; i < 7; i++) {
+                    const daySchedules = document.querySelector(`[data-day="${i}"]`);
+                    if (daySchedules && !daySchedules.querySelector('.alert-warning')) {
+                        dayIndex = i;
+                        break;
+                    }
+                }
+                if (dayIndex === null) dayIndex = 0;
+            }
+            
+            const daySchedules = document.querySelector(`[data-day="${dayIndex}"]`);
+            if (!daySchedules) {
+                console.error('Day schedules container not found for day:', dayIndex);
+                return;
+            }
+            
+            const newSlot = document.createElement('div');
+            newSlot.className = 'schedule-slot mb-2 p-2 bg-light rounded';
+            newSlot.innerHTML = `
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm">
+                            <input type="time" class="form-control" name="start_time_${dayIndex}_new" value="09:00" required>
+                            <span class="input-group-text">至</span>
+                            <input type="time" class="form-control" name="end_time_${dayIndex}_new" value="18:00" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="available_${dayIndex}_new" checked>
+                            <label class="form-check-label">營業</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeScheduleSlot(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // 移除休息日提示
+            const restAlert = daySchedules.querySelector('.alert-warning');
+            if (restAlert) {
+                restAlert.remove();
+            }
+            
+            daySchedules.appendChild(newSlot);
+        }
+        
+        function removeScheduleSlot(button) {
+            const slot = button.closest('.schedule-slot');
+            const daySchedules = button.closest('.day-schedules');
+            slot.remove();
+            
+            // 如果沒有時段了，顯示休息日提示
+            if (daySchedules.children.length === 0) {
+                daySchedules.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>休息日
+                    </div>
+                `;
+            }
+        }
+        
+        document.getElementById('schedule-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const schedule = [];
+            const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+            
+            for (let i = 0; i < 7; i++) {
+                const daySchedules = document.querySelectorAll(`[data-day="${i}"] .schedule-slot`);
+                
+                if (daySchedules.length === 0) {
+                    // 休息日
+                    schedule.push({
+                        day_of_week: i,
+                        start_time: '00:00',
+                        end_time: '00:00',
+                        is_available: false,
+                        schedule_type: 'regular'
+                    });
+                } else {
+                    // 多個時段
+                    daySchedules.forEach((slot, index) => {
+                        const inputs = slot.querySelectorAll('input');
+                        schedule.push({
+                            day_of_week: i,
+                            start_time: inputs[0].value,
+                            end_time: inputs[1].value,
+                            is_available: inputs[2].checked,
+                            schedule_type: 'regular'
+                        });
+                    });
+                }
+            }
+            
+            try {
+                const response = await fetch('/api/schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(schedule)
+                });
+                
+                if (response.ok) {
+                    showAlert('營業時間已更新', 'success');
+                    loadSchedule(); // 重新載入
+                } else {
+                    showAlert('儲存失敗', 'danger');
+                }
+            } catch (error) {
+                console.error('Error saving schedule:', error);
+                showAlert('儲存失敗', 'danger');
+            }
+        });
+        
+        // 特殊營業時間功能
+        function loadSpecialSchedule() {
+            fetch('/api/special-schedule')
+                .then(response => response.json())
+                .then(data => {
+                    renderSpecialSchedule(data);
+                })
+                .catch(error => {
+                    console.error('Error loading special schedule:', error);
+                });
+        }
+        
+        function renderSpecialSchedule(specials) {
+            let html = '';
+            
+            if (specials.length === 0) {
+                html = '<div class="text-muted">暫無特殊營業時間設定</div>';
+            } else {
+                specials.forEach(special => {
+                    html += `
+                        <div class="special-schedule-item mb-2 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${special.date}</strong>
+                                    ${special.is_closed ? 
+                                        '<span class="badge bg-danger ms-2">休息</span>' : 
+                                        `<span class="badge bg-success ms-2">${special.open_time} - ${special.close_time}</span>`
+                                    }
+                                    ${special.reason ? `<br><small class="text-muted">${special.reason}</small>` : ''}
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteSpecialSchedule(${special.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            document.getElementById('special-schedule-list').innerHTML = html;
+        }
+        
+        function deleteSpecialSchedule(id) {
+            if (confirm('確定要刪除這個特殊營業時間設定嗎？')) {
+                fetch(`/api/special-schedule/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('特殊營業時間已刪除', 'success');
+                        loadSpecialSchedule();
+                    } else {
+                        showAlert('刪除失敗', 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting special schedule:', error);
+                    showAlert('刪除失敗', 'danger');
+                });
+            }
+        }
+        
+        // 特殊營業時間模態框
+        document.getElementById('special-closed').addEventListener('change', function() {
+            document.getElementById('special-time-fields').style.display = this.checked ? 'none' : 'block';
+        });
+        
+        document.getElementById('save-special-schedule').addEventListener('click', function() {
+            const date = document.getElementById('special-date').value;
+            const isClosed = document.getElementById('special-closed').checked;
+            const openTime = document.getElementById('special-open-time').value;
+            const closeTime = document.getElementById('special-close-time').value;
+            const reason = document.getElementById('special-reason').value;
+            
+            if (!date) {
+                showAlert('請選擇日期', 'warning');
+                return;
+            }
+            
+            if (!isClosed && (!openTime || !closeTime)) {
+                showAlert('請設定營業時間', 'warning');
+                return;
+            }
+            
+            const data = {
+                date: date,
+                is_closed: isClosed,
+                open_time: isClosed ? null : openTime,
+                close_time: isClosed ? null : closeTime,
+                reason: reason
+            };
+            
+            fetch('/api/special-schedule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('特殊營業時間已新增', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('specialScheduleModal')).hide();
+                    document.getElementById('special-schedule-form').reset();
+                    loadSpecialSchedule();
+                } else {
+                    showAlert('新增失敗', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving special schedule:', error);
+                showAlert('新增失敗', 'danger');
+            });
+        });
+
+        // Calendar functions
+        function initializeCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            if (calendar) {
+            }
+            
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'zh-tw',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: async function(fetchInfo, successCallback, failureCallback) {
+                    try {
+                        const response = await fetch('/api/appointments');
+                        const appointments = await response.json();
+                        
+                        const events = appointments.map(a => {
+                            // Use time directly if it's already in proper format
+                            let timeStr = a.time;
+                            
+                            // Only convert if it's in 12-hour format with AM/PM
+                            if (timeStr && (timeStr.includes('AM') || timeStr.includes('PM'))) {
+                                const [time, period] = timeStr.split(' ');
+                                let [hours, minutes] = time.split(':');
+                                hours = parseInt(hours);
+                                
+                                if (period === 'PM' && hours < 12) hours += 12;
+                                if (period === 'AM' && hours === 12) hours = 0;
+                                
+                                timeStr = `${hours.toString().padStart(2, '0')}:${minutes || '00'}`;
+                            } else if (timeStr && !timeStr.includes(':')) {
+                                // If no colon, add :00 for proper format
+                                timeStr = timeStr + ':00';
+                            }
+                            
+                            console.log('Appointment time:', a.date, timeStr); // Debug log
+                            
+                            return {
+                                title: `預約 - ${a.service_name}`,
+                                start: `${a.date}T${timeStr}`,
+                                backgroundColor: a.status === 'confirmed' ? '#28a745' : '#ffc107',
+                                extendedProps: {
+                                    customer_name: a.customer_name || '未提供',
+                                    customer_phone: a.customer_phone,
+                                    status: a.status,
+                                    service_name: a.service_name
+                                }
+                            };
+                        });
+                        
+                        console.log('Calendar events:', events); // Debug log
+                        successCallback(events);
+                    } catch (error) {
+                        console.error('Calendar error:', error);
+                        failureCallback(error);
+                    }
+                }
+            });
+            
+            calendar.render();
+        }
+
+        // Appointments functions
+        async function loadAppointments() {
+            try {
+                const response = await fetch('/api/appointments');
+                const appointments = await response.json();
+                
+                const html = appointments.map(appointment => `
+                    <div class="appointment-item p-3 border rounded mb-2">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">${appointment.customer_name || '未提供'}</h6>
+                                <p class="mb-1">${appointment.service_name}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>${appointment.date}
+                                    <i class="fas fa-clock ms-2 me-1"></i>${appointment.time}
+                                    ${appointment.customer_phone ? `<i class="fas fa-phone ms-2 me-1"></i>${appointment.customer_phone}` : ''}
+                                </small>
+                            </div>
+                            <div>
+                                <span class="badge ${appointment.status === 'confirmed' ? 'bg-success' : 'bg-warning'}">
+                                    ${appointment.status === 'confirmed' ? '已確認' : '待確認'}
+                                </span>
+                                <button class="btn btn-sm btn-outline-danger ms-2" onclick="cancelAppointment(${appointment.id})">
+                                    <i class="fas fa-times"></i> 取消
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('appointments-list').innerHTML = html || 
+                    '<p class="text-center text-muted">尚無預約記錄</p>';
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                document.getElementById('appointments-list').innerHTML = 
+                    '<p class="text-center text-danger">載入失敗</p>';
+            }
+        }
+
+        // LINE settings functions
+        async function loadLineSettings() {
+            try {
+                const response = await fetch('/api/merchant');
+                const merchant = await response.json();
+                
+                if (merchant.id) {
+                    // Note: For security, we don't load the actual tokens back
+                    // We'll just show placeholders if they exist
+                    document.getElementById('line-access-token').placeholder = 
+                        merchant.line_channel_access_token ? '已設定' : '請輸入 LINE Channel Access Token';
+                    document.getElementById('line-secret').placeholder = 
+                        merchant.line_channel_secret ? '已設定' : '請輸入 LINE Channel Secret';
+                    
+                    // 顯示用戶名稱和 Webhook URL
+                    const username = current_user?.username || 'unknown';
+                    
+                    // 檢測是否在本地開發環境
+                    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                    let webhookUrl;
+                    
+                    if (isLocalhost) {
+                        // 本地開發環境，顯示 ngrok 提示
+                        webhookUrl = `https://your-ngrok-url.ngrok.io/webhook/${username}`;
+                    } else {
+                        // 生產環境，使用實際域名和用戶名稱
+                        webhookUrl = `${window.location.origin}/webhook/${username}`;
+                    }
+                    
+                    document.getElementById('merchant-username').value = username;
+                    document.getElementById('webhook-url').value = webhookUrl;
+                    
+                    // 如果是本地環境，添加 ngrok 提示
+                    if (isLocalhost) {
+                        const webhookContainer = document.getElementById('webhook-url').closest('.col-md-6');
+                        const ngrokAlert = document.createElement('div');
+                        ngrokAlert.className = 'alert alert-warning mt-2';
+                        ngrokAlert.innerHTML = `
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>本地開發環境：</strong>
+                            請先啟動 ngrok 並更新此 URL：<br>
+                            <code>ngrok http 5000</code>
+                        `;
+                        webhookContainer.appendChild(ngrokAlert);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading LINE settings:', error);
+            }
+        }
+        
+        // 複製用戶名稱
+        function copyMerchantUsername() {
+            const usernameInput = document.getElementById('merchant-username');
+            usernameInput.select();
+            document.execCommand('copy');
+            showAlert('用戶名稱已複製到剪貼簿', 'success');
+        }
+        
+        // 複製 Webhook URL
+        function copyWebhookUrl() {
+            const webhookUrlInput = document.getElementById('webhook-url');
+            webhookUrlInput.select();
+            document.execCommand('copy');
+            showAlert('Webhook URL 已複製到剪貼簿', 'success');
+        }
+        
+        // 更新 ngrok URL（如果檢測到 ngrok 運行）
+        function updateNgrokUrl() {
+            const webhookUrlInput = document.getElementById('webhook-url');
+            const currentUrl = webhookUrlInput.value;
+            
+            // 如果當前 URL 包含 ngrok，提取實際的 ngrok URL
+            if (currentUrl && currentUrl.includes('your-ngrok-url')) {
+                // 嘗試從 ngrok 獲取實際 URL
+                fetch('/api/ngrok-url')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.url) {
+                            webhookUrlInput.value = data.url;
+                            showAlert('已自動更新 ngrok URL', 'success');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching ngrok URL:', error);
+                    });
+            }
+        }
+        
+        // 定期檢查 ngrok URL 更新
+        setInterval(updateNgrokUrl, 5000); // 每 5 秒檢查一次
+
+        document.getElementById('line-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const data = {
+                line_channel_access_token: document.getElementById('line-access-token').value,
+                line_channel_secret: document.getElementById('line-secret').value
+            };
+            
+            try {
+                const response = await fetch('/api/merchant', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showAlert('LINE 設定已儲存', 'success');
+                    // Clear the form for security
+                    document.getElementById('line-form').reset();
+                    loadLineSettings();
+                } else {
+                    showAlert('儲存失敗', 'danger');
+                }
+            } catch (error) {
+                console.error('Error saving LINE settings:', error);
+                showAlert('儲存失敗', 'danger');
+            }
+        });
+
+        // Utility functions
+        function setupWebhookUrl() {
+            const webhookUrl = `${window.location.origin}/webhook`;
+            const webhookElement = document.getElementById('webhook-url');
+            if (webhookElement) {
+                webhookElement.textContent = webhookUrl;
+            }
+        }
+
+        // Global variable to store current user info
+        let current_user = null;
+        
+        // Get current user info from page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Try to get username from page or use fallback
+            const usernameElement = document.querySelector('[data-username]');
+            if (usernameElement) {
+                current_user = { username: usernameElement.dataset.username };
+            }
+        });
+        
+        // Alert function
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
