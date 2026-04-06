@@ -1,225 +1,181 @@
-# LINE AI 智能客服自動預約系統
+# 🤖 LINE AI 智能預約系統
 
-一套面向小型商户的 LINE AI 智能客服自動預約系統，整合 Google Gemini AI 和 LINE Bot，提供完整的自動化預約解決方案。
+## 📋 項目概述
 
-## 系統特色
+LINE AI 智能預約系統是一個基於 Flask 的智能客服預約管理系統，整合 LINE Bot 和 Google Gemini AI，提供自動化的客服和預約管理功能。
 
-- 🤖 **AI 智能客服**：使用 Google Gemini Flash API 提供自然對話體驗
-- 📱 **LINE 整合**：無縫整合 LINE 平台，客戶透過熟悉介面預約
-- 🗓️ **智能排程**：自動檢查時間衝突，推薦可用時段
-- 🏪 **商家管理**：完整的後台管理系統，零代碼配置
-- 📊 **數據分析**：提供預約統計和商業洞察
+## ✨ 主要功能
 
-## 功能模組
+### 🎯 核心功能
+- **🤖 AI 智能客服** - Google Gemini 驅動的對話系統
+- **📅 預約管理** - 完整的預約創建和管理
+- **🏪 商家後台** - 蘋果風格的管理介面
+- **👥 多用戶支援** - 安全的多商家系統
+- **🔗 Webhook 整合** - LINE Bot 即時回應
 
-### 商家後台功能
-- **基本設定**：店家資訊、到店須知、AI 語氣風格
-- **服務管理**：新增/編輯/刪除服務項目
-- **營業時間**：設定每週營業時間
-- **行事曆檢視**：可視化預約狀況
-- **預約管理**：查看、確認、取消預約
-- **LINE 設定**：配置 LINE Bot API
+### 🎨 設計特色
+- **🍎 Apple 風格** - 精緻的黑白設計
+- **📱 響應式設計** - 完美支援各種設備
+- **✨ 流暢動畫** - 優雅的用戶體驗
+- **🎯 直觀操作** - 簡單易用的介面
 
-### AI 客服功能
-- 自動識別預約意圖
-- 智能推薦可用時段
-- 自動創建預約記錄
-- 個性化對話風格
+## 🚀 快速開始
 
-## 技術架構
+### 📋 系統需求
+- Python 3.8+
+- PostgreSQL 資料庫
+- LINE Developers 帳號
+- Google Gemini API 金鑰
 
-- **後端框架**：Flask (Python)
-- **資料庫**：PostgreSQL
-- **AI 服務**：Google Gemini Flash API
-- **通訊平台**：LINE Bot API
-- **前端框架**：Bootstrap 5 + JavaScript
-- **行事曆**：FullCalendar
+### ⚡ 安裝步驟
 
-## 快速開始
+1. **克隆專案**
+   ```bash
+   git clone https://github.com/你的用戶名/line-ai-appointment-system.git
+   cd line-ai-appointment-system
+   ```
 
-### 1. 環境準備
+2. **設置環境**
+   ```bash
+   # 創建虛擬環境
+   python -m venv venv
+   source venv/bin/activate  # Windows: venv\Scripts\activate
+   
+   # 安裝依賴
+   pip install -r requirements.txt
+   
+   # 設置環境變數
+   cp .env.example .env
+   # 編輯 .env 文件填入你的 API 金鑰
+   ```
 
-```bash
-# 複製專案
-git clone <repository-url>
-cd line-ai-appointment-system
+3. **初始化資料庫**
+   ```bash
+   # 設置 PostgreSQL
+   python scripts/setup_postgresql.py
+   
+   # 遷移到多用戶系統
+   python scripts/migrate_to_multiuser.py
+   ```
 
-# 安裝依賴
-pip install -r requirements.txt
+4. **啟動應用**
+   ```bash
+   python app.py
+   ```
+
+5. **訪問系統**
+   - 本地: http://localhost:5000
+   - 登入: 創建管理員帳號
+
+## 📁 項目結構
+
+```
+ACS/
+├── 📄 app.py                    # 主應用程式
+├── 📄 requirements.txt           # Python 依賴
+├── 📄 .env.example             # 環境變數範例
+├── 📄 .gitignore              # Git 忽略文件
+├── 📁 templates/              # HTML 模板
+│   ├── 📄 index.html         # 首頁
+│   ├── 📄 login.html         # 登入頁面
+│   └── 📄 merchant.html      # 商家後台
+├── 📁 docs/                  # 📚 文檔目錄
+│   ├── 📖 README.md           # 項目說明
+│   ├── 📖 SETUP.md           # 設置指南
+│   ├── 📖 COLLABORATION.md   # 協作指南
+│   ├── 📖 AI_RULES.md        # AI 規範
+│   └── 📖 FILE_STRUCTURE.md  # 文件結構
+├── 📁 scripts/               # 🛠️ 工具腳本
+│   ├── 🔧 setup_collaboration.sh
+│   ├── 🔧 start_ngrok.py
+│   ├── 🔧 setup_postgresql.py
+│   └── 🔧 migrate_to_multiuser.py
+└── 📁 backup/               # 🗂️ 備份目錄
 ```
 
-### 2. 環境設定
+## 📖 文檔
 
+### 🚀 設置指南
+- **[SETUP.md](docs/SETUP.md)** - 完整的設置指南
+- **[COLLABORATION.md](docs/COLLABORATION.md)** - 團隊協作指南
+- **[AI_RULES.md](docs/AI_RULES.md)** - Live Share AI 協作規範
+
+### 🛠️ 工具腳本
+- **setup_collaboration.sh** - 協作環境設置
+- **start_ngrok.py** - ngrok 隧道啟動
+- **setup_postgresql.py** - 資料庫初始化
+- **migrate_to_multiuser.py** - 多用戶系統遷移
+
+## 🎯 使用指南
+
+### 👥 商家管理
+1. **註冊帳號** - 創建商家帳號
+2. **設定服務** - 添加服務項目和價格
+3. **設定時間** - 配置營業時間
+4. **設定 LINE** - 配置 LINE Bot
+5. **開始營業** - 接收客戶預約
+
+### 🤖 AI 客服
+1. **客戶發送訊息** - 通過 LINE 發送
+2. **AI 自動回應** - Gemini 生成智能回覆
+3. **預約確認** - 自動創建預約記錄
+4. **提醒通知** - 自動發送提醒
+
+## 🔧 開發指南
+
+### 🌿 本地開發
 ```bash
-# 複製環境變數檔案
-cp .env.example .env
-
-# 編輯 .env 檔案，填入必要的 API 金鑰和 PostgreSQL 設定
-```
-
-### 3. PostgreSQL 設定
-
-```bash
-# 確保 PostgreSQL 已安裝並運行
-# Windows: 下載並安裝 PostgreSQL
-# macOS: brew install postgresql
-# Ubuntu: sudo apt-get install postgresql postgresql-contrib
-
-# 創建資料庫和設定連接
-python setup_postgresql.py
-```
-
-### 4. 資料庫初始化
-
-```bash
-# 啟動 Flask 應用（會自動創建資料表）
+# 啟動開發服務器
 python app.py
+
+# 啟動 ngrok (本地測試)
+python scripts/start_ngrok.py
 ```
 
-### 5. LINE Bot 設定
-
-1. 前往 [LINE Developers Console](https://developers.line.biz/)
-2. 創建新的 Provider 和 Channel (Messaging API)
-3. 取得 Channel Access Token 和 Channel Secret
-4. 在商家後台的「LINE 設定」頁面填入金鑰
-5. 設定 Webhook URL：`http://your-domain.com/webhook`
-
-## 使用指南
-
-### 商家設定流程
-
-1. **基本資訊設定**
-   - 訪問 `/merchant` 進入後台
-   - 填寫店家名稱、地址、電話等基本資訊
-   - 設定到店須知和 AI 語氣風格
-
-2. **服務項目管理**
-   - 新增店家提供的服務項目
-   - 設定每項服務的時長和價格
-
-3. **營業時間設定**
-   - 設定每週的營業時間
-   - 可設定休息日或特殊時段
-
-4. **LINE Bot 配置**
-   - 填入 LINE Channel Access Token 和 Channel Secret
-   - 測試 LINE Bot 連接
-
-### 客戶預約流程
-
-1. 客戶透過 LINE 發送訊息
-2. AI 自動識別預約需求
-3. 系統推薦可用時段
-4. 客戶確認後自動創建預約
-5. 系統發送確認訊息
-
-## API 文件
-
-### 主要端點
-
-- `GET /` - 系統首頁
-- `GET /merchant` - 商家後台
-- `GET/POST /api/merchant` - 商家資訊 API
-- `GET/POST /api/services` - 服務項目 API
-- `GET/POST /api/schedule` - 營業時間 API
-- `GET/POST /api/appointments` - 預約管理 API
-- `GET /api/calendar/<date>` - 行事曆資料 API
-- `POST /webhook` - LINE Bot Webhook
-
-### 資料庫結構
-
-#### Merchant（商家）
-- id, name, description, address, phone
-- line_channel_access_token, line_channel_secret
-- ai_tone, arrival_info, created_at
-
-#### Service（服務）
-- id, merchant_id, name, description
-- duration（分鐘）, price, created_at
-
-#### Schedule（營業時間）
-- id, merchant_id, day_of_week（0-6）
-- start_time, end_time, is_available
-
-#### Appointment（預約）
-- id, merchant_id, customer_name, customer_phone
-- service_id, date, time, status
-- line_user_id, created_at
-
-#### BlockedTime（封鎖時間）
-- id, merchant_id, date, start_time, end_time, reason
-
-## 部署說明
-
-### 本地開發
-
+### 🤝 協作開發
 ```bash
-python app.py
+# 設置協作環境
+./scripts/setup_collaboration.sh
+
+# 開始協作
+./scripts/start_collaboration.sh
 ```
 
-### 生產環境
-
-建議使用 Gunicorn + Nginx：
-
-```bash
-# 安裝 Gunicorn
-pip install gunicorn
-
-# 啟動應用
-gunicorn -w 4 -b 0.0.0.0:5000 app:app
-```
-
-### Docker 部署
-
-```dockerfile
-FROM python:3.9-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-EXPOSE 5000
-
-CMD ["python", "app.py"]
-```
-
-## 安全注意事項
-
-1. **API 金鑰保護**：確保 LINE Channel Access Token 和 Channel Secret 安全存放
-2. **Webhook 驗證**：系統已實作 LINE Webhook 簽名驗證
-3. **資料庫安全**：生產環境建議使用 PostgreSQL 取代 SQLite
-4. **HTTPS**：生產環境必須使用 HTTPS
-
-## 故障排除
+## 🚨 故障排除
 
 ### 常見問題
+1. **資料庫連接失敗**
+   - 檢查 PostgreSQL 服務狀態
+   - 確認 .env 中的資料庫設定
 
-1. **LINE Bot 無回應**
-   - 檢查 Webhook URL 是否正確
-   - 確認 Channel Access Token 和 Channel Secret
-   - 檢查伺服器防火牆設定
+2. **LINE Bot 無回應**
+   - 檢查 Webhook URL 設定
+   - 確認 LINE Channel Access Token
 
-2. **AI 回應異常**
+3. **AI 回應失敗**
    - 檢查 Google Gemini API 金鑰
-   - 確認 API 配額是否用盡
+   - 確認 API 配額
 
-3. **預約時間衝突**
-   - 檢查營業時間設定
-   - 確認服務時長配置正確
+### 📞 獲取幫助
+- 📖 查看 [文檔](docs/)
+- 🐛 報告 [Issues](https://github.com/你的用戶名/line-ai-appointment-system/issues)
+- 💬 討論 [Discord](你的 Discord 連結)
 
-## 授權條款
+## 📄 授權
 
-MIT License
+MIT License - 詳見 [LICENSE](LICENSE) 文件
 
-## 貢獻指南
+## 🤝 貢獻
 
-歡迎提交 Issue 和 Pull Request！
+歡迎貢獻！請查看 [貢獻指南](docs/CONTRIBUTING.md)
 
-## 聯絡方式
+## 🎉 致謝
 
-如有問題，請透過 GitHub Issues 聯繫。
+- Google Gemini AI
+- LINE Messaging API
+- Flask 框架
+- Bootstrap UI 框架
 
 ---
 
-**注意**：本系統為開源專案，使用者需自行承擔使用風險。建議在正式上線前進行充分測試。
+**🚀 讓 AI 客服更智能，讓預約管理更簡單！**
