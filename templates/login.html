@@ -64,7 +64,7 @@
         }
 
         .login-image {
-            background: var(--apple-black);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: var(--apple-white);
             padding: 80px 60px;
             display: flex;
@@ -83,7 +83,19 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(0,122,255,0.1) 0%, rgba(0,0,0,0.05) 100%);
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+
+        .login-image::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
             pointer-events: none;
         }
 
@@ -93,14 +105,17 @@
             margin-bottom: 16px;
             position: relative;
             z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: slideInLeft 0.8s ease-out;
         }
 
         .login-image p {
-            color: var(--apple-gray-400);
+            color: rgba(255,255,255,0.9);
             font-size: 16px;
             margin-bottom: 40px;
             position: relative;
             z-index: 1;
+            animation: slideInLeft 1s ease-out;
         }
 
         .feature-list {
@@ -115,21 +130,29 @@
         .feature-list li {
             padding: 16px 20px;
             margin-bottom: 12px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.1);
             border-radius: var(--apple-border-radius);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--apple-gray-300);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.9);
             font-size: 14px;
             font-weight: 500;
             transition: var(--apple-transition);
             display: flex;
             align-items: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
+        .feature-list li:nth-child(1) { animation: slideInLeft 1.2s ease-out; }
+        .feature-list li:nth-child(2) { animation: slideInLeft 1.4s ease-out; }
+        .feature-list li:nth-child(3) { animation: slideInLeft 1.6s ease-out; }
+        .feature-list li:nth-child(4) { animation: slideInLeft 1.8s ease-out; }
+
         .feature-list li:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.2);
-            transform: translateX(4px);
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.3);
+            transform: translateX(8px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .feature-list li i {
@@ -142,6 +165,19 @@
         .login-form {
             padding: 80px 60px;
             background: var(--apple-white);
+            position: relative;
+        }
+
+        .login-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(102,126,234,0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(118,75,162,0.05) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .login-form h2 {
@@ -150,6 +186,9 @@
             color: var(--apple-black);
             margin-bottom: 40px;
             text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: slideInRight 0.8s ease-out;
         }
 
         .form-floating {
@@ -157,19 +196,22 @@
         }
 
         .form-control {
-            border: 1px solid var(--apple-gray-300);
+            border: 2px solid var(--apple-gray-200);
             border-radius: var(--apple-border-radius);
             padding: 16px 20px;
             font-size: 16px;
             transition: var(--apple-transition);
             background: var(--apple-white);
             height: 60px;
+            position: relative;
+            z-index: 1;
         }
 
         .form-control:focus {
             border-color: var(--apple-blue);
-            box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.15), 0 4px 12px rgba(102,126,234,0.1);
             outline: none;
+            transform: translateY(-2px);
         }
 
         .form-floating label {
@@ -204,7 +246,7 @@
         }
 
         .btn-primary {
-            background: var(--apple-black);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: var(--apple-white);
             border: none;
             border-radius: var(--apple-border-radius);
@@ -217,12 +259,31 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+            z-index: -1;
         }
 
         .btn-primary:hover {
-            background: var(--apple-gray-800);
-            transform: translateY(-1px);
-            box-shadow: var(--apple-shadow-sm);
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
         }
 
         .btn-primary:active {
@@ -359,8 +420,84 @@
             }
         }
 
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
         .login-container {
             animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* 增加微互動 */
+        .form-floating {
+            animation: fadeInUp 0.8s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .form-floating:nth-child(1) { animation-delay: 0.1s; }
+        .form-floating:nth-child(2) { animation-delay: 0.2s; }
+        .form-floating:nth-child(3) { animation-delay: 0.3s; }
+        .form-floating:nth-child(4) { animation-delay: 0.4s; }
+
+        /* 響應式優化 */
+        @media (max-width: 991px) {
+            .login-image {
+                padding: 60px 40px;
+            }
+            
+            .login-form {
+                padding: 60px 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .login-image {
+                padding: 40px 20px;
+            }
+            
+            .login-form {
+                padding: 40px 20px;
+            }
+            
+            .login-image h1 {
+                font-size: 24px;
+            }
+            
+            .login-form h2 {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
