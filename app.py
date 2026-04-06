@@ -423,6 +423,152 @@ def get_fallback_reply(user_message, merchant):
     # 預設回覆
     return f"感謝您的來信！我是{merchant.name}的AI客服助手。有什麼可以幫助您的嗎？您可以詢問營業時間、服務項目或直接預約。"
 
+# 服務項目管理路由
+@app.route('/services')
+@login_required
+def services_page():
+    """服務項目管理頁面"""
+    # 獲取當前用戶的商家
+    merchant = Merchant.query.filter_by(user_id=current_user.id).first()
+    if not merchant:
+        flash('請先設定店家資訊', 'warning')
+        return redirect(url_for('merchant_dashboard'))
+    
+    # 獲取該商家的所有服務項目
+    services = Service.query.filter_by(merchant_id=merchant.id).all()
+    return render_template('services.html', services=services)
+
+@app.route('/api/services', methods=['GET', 'POST'])
+@login_required
+def api_services():
+    """服務項目 API"""
+    # 獲取當前用戶的商家
+    merchant = Merchant.query.filter_by(user_id=current_user.id).first()
+    if not merchant:
+        return jsonify({'error': '請先設定店家資訊'}), 400
+    
+    if request.method == 'GET':
+        # 獲取所有服務項目
+        services = Service.query.filter_by(merchant_id=merchant.id).all()
+        return jsonify([{
+            'id': s.id,
+            'name': s.name,
+            'description': s.description,
+            'duration': s.duration,
+            'price': s.price,
+            'merchant_id': s.merchant_id
+        } for s in services])
+    
+    elif request.method == 'POST':
+        # 新增服務項目
+        try:
+            data = request.get_json()
+            
+            # 驗證必填欄位
+            if not data.get('name') or not data.get('duration') or not data.get('price'):
+                return jsonify({'error': '請填寫所有必填欄位'}), 400
+            
+            # 創建新服務
+            service = Service(
+                merchant_id=merchant.id,
+                name=data['name'],
+                description=data.get('description', ''),
+                duration=data['duration'],
+                price=data['price']
+            )
+            
+            db.session.add(service)
+            db.session.commit()
+            
+            return jsonify({
+                'message': '服務項目創建成功',
+                'service': {
+                    'id': service.id,
+                    'name': service.name,
+                    'description': service.description,
+                    'duration': service.duration,
+                    'price': service.price
+                }
+            }), 201
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'創建失敗: {str(e)}'}), 500
+
+@app.route('/api/services/<int:service_id>', methods=['GET', 'PUT', 'DELETE'])
+@login_required
+def api_service_detail(service_id):
+    """單個服務項目 API"""
+    # 獲取當前用戶的商家
+    merchant = Merchant.query.filter_by(user_id=current_user.id).first()
+    if not merchant:
+        return jsonify({'error': '請先設定店家資訊'}), 400
+    
+    # 查找服務項目
+    service = Service.query.filter_by(id=service_id, merchant_id=merchant.id).first()
+    if not service:
+        return jsonify({'error': '服務項目不存在'}), 404
+    
+    if request.method == 'GET':
+        # 獲取單個服務項目
+        return jsonify({
+            'id': service.id,
+            'name': service.name,
+            'description': service.description,
+            'duration': service.duration,
+            'price': service.price,
+            'merchant_id': service.merchant_id
+        })
+    
+    elif request.method == 'PUT':
+        # 更新服務項目
+        try:
+            data = request.get_json()
+            
+            # 更新欄位
+            if 'name' in data:
+                service.name = data['name']
+            if 'description' in data:
+                service.description = data['description']
+            if 'duration' in data:
+                service.duration = data['duration']
+            if 'price' in data:
+                service.price = data['price']
+            
+            db.session.commit()
+            
+            return jsonify({
+                'message': '服務項目更新成功',
+                'service': {
+                    'id': service.id,
+                    'name': service.name,
+                    'description': service.description,
+                    'duration': service.duration,
+                    'price': service.price
+                }
+            })
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'更新失敗: {str(e)}'}), 500
+    
+    elif request.method == 'DELETE':
+        # 刪除服務項目
+        try:
+            # 檢查是否有相關的預約
+            appointments = Appointment.query.filter_by(service_id=service_id).first()
+            if appointments:
+                return jsonify({'error': '無法刪除，該服務項目已有相關預約'}), 400
+            
+            db.session.delete(service)
+            db.session.commit()
+            
+            return jsonify({'message': '服務項目刪除成功'})
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'刪除失敗: {str(e)}'}), 500
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
