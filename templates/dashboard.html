@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}儀表板 - LINE AI 智能預約系統{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold">儀表板</h2>
+        <p class="text-muted mb-0">歡迎回來，{{ current_user.username }}！</p>
+    </div>
+    <div>
+        <button class="btn btn-primary" onclick="location.reload()">
+            <i class="fas fa-sync-alt me-1"></i>重新整理
+        </button>
+    </div>
+</div>
+
+<!-- 統計卡片 -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-calendar-check fa-2x text-primary"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h3 class="stat-number mb-0">{{ today_appointments|length }}</h3>
+                    <p class="text-muted mb-0">今日預約</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-cut fa-2x text-success"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h3 class="stat-number mb-0">{{ total_services }}</h3>
+                    <p class="text-muted mb-0">服務項目</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-calendar-alt fa-2x text-warning"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h3 class="stat-number mb-0">{{ total_appointments }}</h3>
+                    <p class="text-muted mb-0">總預約數</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-robot fa-2x text-info"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h3 class="stat-number mb-0">AI</h3>
+                    <p class="text-muted mb-0">智能客服</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 今日預約和快速操作 -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-day me-2"></i>今日預約
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if today_appointments %}
+                    {% for appointment in today_appointments %}
+                    <div class="appointment-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ appointment.customer_name }}</h6>
+                                <p class="mb-1 text-muted">{{ appointment.service.name if appointment.service else '未指定服務' }}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>{{ appointment.time }}
+                                </small>
+                            </div>
+                            <div>
+                                <span class="badge bg-{{ 'success' if appointment.status == 'confirmed' else 'warning' }}">
+                                    {{ '已確認' if appointment.status == 'confirmed' else '待確認' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                        <h5>今日沒有預約</h5>
+                        <p class="text-muted">暫時沒有預約安排</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>快速操作
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('appointments') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>新增預約
+                    </a>
+                    <a href="{{ url_for('services') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-cut me-1"></i>管理服務
+                    </a>
+                    <a href="{{ url_for('calendar') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-calendar me-1"></i>查看行事曆
+                    </a>
+                    <a href="{{ url_for('settings') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-cog me-1"></i>系統設定
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- LINE Bot 狀態 -->
+        <div class="card mt-3">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-robot me-2"></i>LINE Bot 狀態
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if merchant.line_channel_access_token %}
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span class="text-success">已配置</span>
+                    </div>
+                {% else %}
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        <span class="text-warning">未配置</span>
+                    </div>
+                {% endif %}
+                <small class="text-muted d-block mt-2">
+                    Webhook URL: <code>{{ request.host_url }}webhook/{{ merchant.id }}</code>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

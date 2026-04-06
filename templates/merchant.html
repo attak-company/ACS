@@ -899,13 +899,66 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Confirmation Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="confirmModalTitle">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        確認刪除
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center py-3">
+                        <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                        <h6 class="mb-3" id="confirmModalMessage">確定要刪除這個服務項目嗎？</h6>
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-info-circle me-1"></i>
+                            刪除後將無法復原，請謹慎操作
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>取消
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="fas fa-trash me-1"></i>確認刪除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/zh-tw.js"></script>
     <script>
         // Global variables
         let currentSection = 'dashboard';
         let calendar = null;
+        
+        // 清理 modal backdrop 的通用函數
+        function cleanupModalBackdrop() {
+            // 清理所有可能的 backdrop
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                backdrop.remove();
+            });
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+        
+        // 安全關閉 modal 的函數
+        function safeCloseModal(modalInstance) {
+            if (modalInstance) {
+                modalInstance.hide();
+                setTimeout(cleanupModalBackdrop, 300);
+            }
+        }
         
         // Test function to verify JavaScript is working
         function testJavaScript() {
@@ -1167,32 +1220,53 @@
 
         async function deleteService(serviceId) {
             console.log('Deleting service:', serviceId); // Debug
-            if (!confirm('確定要刪除這個服務項目嗎？')) {
-                console.log('User cancelled deletion'); // Debug
-                return;
-            }
             
+            // 獲取服務信息
             try {
-                console.log('Sending DELETE request...'); // Debug
-                const response = await fetch(`/api/services/${serviceId}`, {
-                    method: 'DELETE'
-                });
+                const response = await fetch(`/api/services/${serviceId}`);
+                const service = await response.json();
                 
-                console.log('Delete response:', response); // Debug
+                // 更新確認對話框內容
+                document.getElementById('confirmModalMessage').textContent = 
+                    `確定要刪除「${service.name}」這個服務項目嗎？`;
                 
-                if (response.ok) {
-                    console.log('Delete successful, reloading services...'); // Debug
-                    showAlert('服務項目已刪除', 'success');
-                    loadServices();
-                } else {
-                    console.log('Delete failed, getting error message...'); // Debug
-                    const error = await response.json();
-                    console.log('Error message:', error); // Debug
-                    showAlert(error.error || '刪除失敗', 'danger');
-                }
+                // 顯示確認對話框
+                const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                confirmModal.show();
+                
+                // 設置確認按鈕事件
+                const confirmBtn = document.getElementById('confirmDeleteBtn');
+                confirmBtn.onclick = async function() {
+                    try {
+                        console.log('Sending DELETE request...'); // Debug
+                        const deleteResponse = await fetch(`/api/services/${serviceId}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        console.log('Delete response:', deleteResponse); // Debug
+                        
+                        if (deleteResponse.ok) {
+                            console.log('Delete successful, reloading services...'); // Debug
+                            showAlert('服務項目已刪除', 'success');
+                            loadServices();
+                        } else {
+                            console.log('Delete failed, getting error message...'); // Debug
+                            const error = await deleteResponse.json();
+                            console.log('Error message:', error); // Debug
+                            showAlert(error.error || '刪除失敗', 'danger');
+                        }
+                    } catch (error) {
+                        console.error('Error deleting service:', error);
+                        showAlert('刪除失敗', 'danger');
+                    }
+                    
+                    // 安全關閉確認對話框並清理 backdrop
+                    safeCloseModal(confirmModal);
+                };
+                
             } catch (error) {
-                console.error('Error deleting service:', error);
-                showAlert('刪除失敗', 'danger');
+                console.error('Error loading service for delete confirmation:', error);
+                showAlert('載入服務資訊失敗', 'danger');
             }
         }
 
@@ -1286,26 +1360,17 @@
                 if (response.ok) {
                     showAlert(serviceId ? '服務項目已更新' : '服務項目已新增', 'success');
                     
-                    // 關閉模態框
+                    // 安全關閉模態框
                     const modal = bootstrap.Modal.getInstance(document.getElementById('serviceModal'));
-                    if (modal) {
-                        modal.hide();
-                    }
+                    safeCloseModal(modal);
                     
-                    // 等待模態框完全關閉後再重置
+                    // 重置表單和模態框狀態
                     setTimeout(() => {
-                        // 重置表單和模態框狀態
                         document.getElementById('service-form').reset();
                         document.getElementById('serviceModalLabel').textContent = '新增服務項目';
                         this.textContent = '新增服務';
                         this.disabled = false;
                         this.removeAttribute('data-service-id');
-                        
-                        // 清理所有可能的 backdrop
-                        document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-                            backdrop.remove();
-                        });
-                        document.body.classList.remove('modal-open');
                         
                         // 重新載入服務列表
                         loadServices();
@@ -1649,67 +1714,154 @@
 
         // Calendar functions
         function initializeCalendar() {
+            console.log('Initializing calendar...');
+            
             const calendarEl = document.getElementById('calendar');
-            if (calendar) {
+            if (!calendarEl) {
+                console.error('Calendar element not found');
+                return;
             }
             
-            calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                locale: 'zh-tw',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                events: async function(fetchInfo, successCallback, failureCallback) {
-                    try {
-                        const response = await fetch('/api/appointments');
-                        const appointments = await response.json();
-                        
-                        const events = appointments.map(a => {
-                            // Use time directly if it's already in proper format
-                            let timeStr = a.time;
-                            
-                            // Only convert if it's in 12-hour format with AM/PM
-                            if (timeStr && (timeStr.includes('AM') || timeStr.includes('PM'))) {
-                                const [time, period] = timeStr.split(' ');
-                                let [hours, minutes] = time.split(':');
-                                hours = parseInt(hours);
-                                
-                                if (period === 'PM' && hours < 12) hours += 12;
-                                if (period === 'AM' && hours === 12) hours = 0;
-                                
-                                timeStr = `${hours.toString().padStart(2, '0')}:${minutes || '00'}`;
-                            } else if (timeStr && !timeStr.includes(':')) {
-                                // If no colon, add :00 for proper format
-                                timeStr = timeStr + ':00';
-                            }
-                            
-                            console.log('Appointment time:', a.date, timeStr); // Debug log
-                            
-                            return {
-                                title: `預約 - ${a.service_name}`,
-                                start: `${a.date}T${timeStr}`,
-                                backgroundColor: a.status === 'confirmed' ? '#28a745' : '#ffc107',
-                                extendedProps: {
-                                    customer_name: a.customer_name || '未提供',
-                                    customer_phone: a.customer_phone,
-                                    status: a.status,
-                                    service_name: a.service_name
-                                }
-                            };
-                        });
-                        
-                        console.log('Calendar events:', events); // Debug log
-                        successCallback(events);
-                    } catch (error) {
-                        console.error('Calendar error:', error);
-                        failureCallback(error);
-                    }
+            // 清理現有的 calendar
+            if (calendar) {
+                try {
+                    calendar.destroy();
+                } catch (e) {
+                    console.log('Error destroying calendar:', e);
                 }
+                calendar = null;
+            }
+            
+            try {
+                calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    locale: 'zh-tw',
+                    height: 'auto',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
+                    events: function(fetchInfo, successCallback, failureCallback) {
+                        console.log('Fetching calendar events...');
+                        fetchAppointmentsForCalendar(fetchInfo, successCallback, failureCallback);
+                    },
+                    eventClick: function(info) {
+                        showAppointmentDetails(info.event);
+                    },
+                    eventDidMount: function(info) {
+                        // 添加自定義樣式
+                        if (info.event.extendedProps.status === 'confirmed') {
+                            info.el.style.backgroundColor = '#28a745';
+                            info.el.style.borderColor = '#1e7e34';
+                        } else {
+                            info.el.style.backgroundColor = '#ffc107';
+                            info.el.style.borderColor = '#e0a800';
+                        }
+                        info.el.style.color = '#ffffff';
+                        info.el.style.borderRadius = '8px';
+                        info.el.style.padding = '4px 8px';
+                    },
+                    loading: function(bool) {
+                        console.log('Calendar loading:', bool);
+                        if (bool) {
+                            calendarEl.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> 載入中...</div>';
+                        }
+                    },
+                    noEventsContent: function() {
+                        return '<div class="text-center p-4 text-muted">沒有預約記錄</div>';
+                    }
+                });
+                
+                calendar.render();
+                console.log('Calendar rendered successfully');
+                
+            } catch (error) {
+                console.error('Error initializing calendar:', error);
+                calendarEl.innerHTML = '<div class="alert alert-danger">行事曆載入失敗</div>';
+            }
+        }
+        
+        // 獲取預約資料給行事曆
+        async function fetchAppointmentsForCalendar(fetchInfo, successCallback, failureCallback) {
+            try {
+                const response = await fetch('/api/appointments');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch appointments');
+                }
+                
+                const appointments = await response.json();
+                console.log('Appointments data:', appointments);
+                
+                const events = appointments.map(a => {
+                    // 處理時間格式
+                    let timeStr = a.time || '10:00';
+                    if (!timeStr.includes(':')) {
+                        timeStr = timeStr + ':00';
+                    }
+                    
+                    // 處理 12 小時制轉 24 小時制
+                    if (timeStr.includes('AM') || timeStr.includes('PM')) {
+                        const [time, period] = timeStr.split(' ');
+                        let [hours, minutes] = time.split(':');
+                        hours = parseInt(hours);
+                        
+                        if (period === 'PM' && hours < 12) hours += 12;
+                        if (period === 'AM' && hours === 12) hours = 0;
+                        
+                        timeStr = `${hours.toString().padStart(2, '0')}:${minutes || '00'}`;
+                    }
+                    
+                    return {
+                        id: a.id,
+                        title: `📋 ${a.service_name || '預約'} - ${a.customer_name || '客戶'}`,
+                        start: `${a.date}T${timeStr}`,
+                        end: `${a.date}T${timeStr}`,
+                        backgroundColor: a.status === 'confirmed' ? '#28a745' : '#ffc107',
+                        borderColor: a.status === 'confirmed' ? '#1e7e34' : '#e0a800',
+                        textColor: '#ffffff',
+                        extendedProps: {
+                            customer_name: a.customer_name || '未提供',
+                            customer_phone: a.customer_phone || '未提供',
+                            status: a.status,
+                            service_name: a.service_name || '未指定',
+                            appointment_id: a.id
+                        }
+                    };
+                });
+                
+                console.log('Calendar events:', events);
+                successCallback(events);
+                
+            } catch (error) {
+                console.error('Error fetching appointments:', error);
+                failureCallback(error);
+            }
+        }
+        
+        // 顯示預約詳情
+        function showAppointmentDetails(event) {
+            const props = event.extendedProps;
+            const startTime = event.start.toLocaleString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
             });
             
-            calendar.render();
+            const details = `
+📋 預約詳情
+━━━━━━━━━━━━━━━━━━━━
+👤 客戶：${props.customer_name}
+💇 服務：${props.service_name}
+📅 時間：${startTime}
+📞 電話：${props.customer_phone}
+✅ 狀態：${props.status === 'confirmed' ? '已確認' : '待確認'}
+━━━━━━━━━━━━━━━━━━━━
+            `;
+            
+            alert(details.trim());
         }
 
         // Appointments functions

@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}預約管理 - LINE AI 智能預約系統{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold">預約管理</h2>
+        <p class="text-muted mb-0">管理所有客戶預約</p>
+    </div>
+    <div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+            <i class="fas fa-plus me-1"></i>新增預約
+        </button>
+    </div>
+</div>
+
+<!-- 日期篩選 -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-end">
+            <div class="col-md-3">
+                <label for="dateFilter" class="form-label">日期篩選</label>
+                <input type="date" class="form-control" id="dateFilter" value="{{ request.args.get('date', '') }}">
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary" onclick="filterAppointments()">篩選</button>
+                <button class="btn btn-outline-secondary" onclick="clearFilter()">清除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 預約列表 -->
+<div class="card">
+    <div class="card-body">
+        {% if appointments %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>客戶姓名</th>
+                            <th>服務項目</th>
+                            <th>預約日期</th>
+                            <th>預約時間</th>
+                            <th>聯絡電話</th>
+                            <th>狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in appointments %}
+                        <tr>
+                            <td>{{ appointment.customer_name }}</td>
+                            <td>{{ appointment.service_name or '未指定' }}</td>
+                            <td>{{ appointment.date }}</td>
+                            <td>{{ appointment.time }}</td>
+                            <td>{{ appointment.customer_phone or '未提供' }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if appointment.status == 'confirmed' else 'warning' if appointment.status == 'pending' else 'danger' if appointment.status == 'cancelled' else 'info' }}">
+                                    {{ '已確認' if appointment.status == 'confirmed' else '待確認' if appointment.status == 'pending' else '已取消' if appointment.status == 'cancelled' else '已完成' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" onclick="editAppointment({{ appointment.id }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" onclick="deleteAppointment({{ appointment.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                <h4>沒有預約記錄</h4>
+                <p class="text-muted">暫時沒有預約安排</p>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                    <i class="fas fa-plus me-1"></i>新增預約
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 預約模態框 -->
+<div class="modal fade" id="appointmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appointmentModalTitle">新增預約</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="appointmentForm">
+                    <div class="mb-3">
+                        <label for="customerName" class="form-label">客戶姓名</label>
+                        <input type="text" class="form-control" id="customerName" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="customerPhone" class="form-label">聯絡電話</label>
+                        <input type="tel" class="form-control" id="customerPhone">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="serviceSelect" class="form-label">服務項目</label>
+                        <select class="form-control" id="serviceSelect">
+                            <option value="">請選擇服務</option>
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="appointmentDate" class="form-label">預約日期</label>
+                                <input type="date" class="form-control" id="appointmentDate" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="appointmentTime" class="form-label">預約時間</label>
+                                <input type="time" class="form-control" id="appointmentTime" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="appointmentStatus" class="form-label">狀態</label>
+                        <select class="form-control" id="appointmentStatus">
+                            <option value="confirmed">已確認</option>
+                            <option value="pending">待確認</option>
+                            <option value="cancelled">已取消</option>
+                            <option value="completed">已完成</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="appointmentNotes" class="form-label">備註</label>
+                        <textarea class="form-control" id="appointmentNotes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveAppointment()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 刪除確認模態框 -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">確認刪除</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>確定要刪除這個預約嗎？此操作無法撤銷。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">刪除</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentAppointmentId = null;
+let deleteModal = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    
+    // 載入服務列表
+    loadServices();
+    
+    // 設置默認日期為今天
+    document.getElementById('appointmentDate').value = new Date().toISOString().split('T')[0];
+    
+    // 監聽模態框關閉事件
+    document.getElementById('appointmentModal').addEventListener('hidden.bs.modal', function() {
+        document.getElementById('appointmentForm').reset();
+        document.getElementById('appointmentModalTitle').textContent = '新增預約';
+        currentAppointmentId = null;
+        // 重新設置默認日期
+        document.getElementById('appointmentDate').value = new Date().toISOString().split('T')[0];
+    });
+});
+
+function loadServices() {
+    apiCall('/api/services')
+        .then(function(services) {
+            var select = document.getElementById('serviceSelect');
+            select.innerHTML = '<option value="">請選擇服務</option>';
+            services.forEach(function(service) {
+                select.innerHTML += '<option value="' + service.id + '">' + service.name + ' - $' + service.price + '</option>';
+            });
+        })
+        .catch(function(error) {
+            console.error('載入服務失敗:', error);
+        });
+}
+
+function filterAppointments() {
+    var date = document.getElementById('dateFilter').value;
+    var url = date ? '/appointments?date=' + date : '/appointments';
+    window.location.href = url;
+}
+
+function clearFilter() {
+    document.getElementById('dateFilter').value = '';
+    window.location.href = '/appointments';
+}
+
+function editAppointment(appointmentId) {
+    currentAppointmentId = appointmentId;
+    
+    apiCall('/api/appointments/' + appointmentId)
+        .then(function(appointment) {
+            document.getElementById('appointmentModalTitle').textContent = '編輯預約';
+            document.getElementById('customerName').value = appointment.customer_name;
+            document.getElementById('customerPhone').value = appointment.customer_phone || '';
+            document.getElementById('serviceSelect').value = appointment.service_id || '';
+            document.getElementById('appointmentDate').value = appointment.date;
+            document.getElementById('appointmentTime').value = appointment.time;
+            document.getElementById('appointmentStatus').value = appointment.status;
+            document.getElementById('appointmentNotes').value = appointment.notes || '';
+            
+            var modal = new bootstrap.Modal(document.getElementById('appointmentModal'));
+            modal.show();
+        })
+        .catch(function(error) {
+            console.error('獲取預約失敗:', error);
+        });
+}
+
+function saveAppointment() {
+    var appointmentData = {
+        customer_name: document.getElementById('customerName').value,
+        customer_phone: document.getElementById('customerPhone').value,
+        service_id: document.getElementById('serviceSelect').value || null,
+        date: document.getElementById('appointmentDate').value,
+        time: document.getElementById('appointmentTime').value,
+        status: document.getElementById('appointmentStatus').value,
+        notes: document.getElementById('appointmentNotes').value
+    };
+    
+    var url = currentAppointmentId ? '/api/appointments/' + currentAppointmentId : '/api/appointments';
+    var method = currentAppointmentId ? 'PUT' : 'POST';
+    
+    apiCall(url, {
+        method: method,
+        body: JSON.stringify(appointmentData)
+    })
+    .then(function() {
+        showAlert(currentAppointmentId ? '預約更新成功' : '預約創建成功', 'success');
+        bootstrap.Modal.getInstance(document.getElementById('appointmentModal')).hide();
+        location.reload();
+    })
+    .catch(function(error) {
+        console.error('保存預約失敗:', error);
+    });
+}
+
+function deleteAppointment(appointmentId) {
+    currentAppointmentId = appointmentId;
+    deleteModal.show();
+}
+
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    if (currentAppointmentId) {
+        apiCall('/api/appointments/' + currentAppointmentId, {
+            method: 'DELETE'
+        })
+        .then(function() {
+            showAlert('預約刪除成功', 'success');
+            deleteModal.hide();
+            location.reload();
+        })
+        .catch(function(error) {
+            console.error('刪除預約失敗:', error);
+        });
+    }
+});
+</script>
+{% endblock %}

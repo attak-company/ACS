@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}註冊 - LINE AI 智能預約系統{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                    <h2 class="fw-bold">創建帳戶</h2>
+                    <p class="text-muted">註冊您的店家帳戶</p>
+                </div>
+                
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user me-1"></i>用戶名
+                        </label>
+                        <input type="text" class="form-control" id="username" name="username" required
+                               placeholder="請輸入用戶名">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope me-1"></i>郵箱
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" required
+                               placeholder="請輸入郵箱">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="merchant_name" class="form-label">
+                            <i class="fas fa-store me-1"></i>店家名稱
+                        </label>
+                        <input type="text" class="form-control" id="merchant_name" name="merchant_name" required
+                               placeholder="請輸入店家名稱">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">
+                            <i class="fas fa-phone me-1"></i>電話 (選填)
+                        </label>
+                        <input type="tel" class="form-control" id="phone" name="phone"
+                               placeholder="請輸入聯絡電話">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-1"></i>密碼
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" required
+                               placeholder="請輸入密碼">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-plus me-1"></i>註冊
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p class="mb-0">已有帳戶？ 
+                        <a href="{{ url_for('login') }}" class="text-primary text-decoration-none">
+                            立即登入
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
