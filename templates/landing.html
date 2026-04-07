@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數位店長 - 智能 LINE 客服預約系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Shopify Ultimate Design System - 與 merchant.html 完全相同 */
+        
+        /* Typography */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            /* Shopify Ultimate Design System */
+            --bg-primary: #f3f4f6;
+            --bg-secondary: #ffffff;
+            --bg-sidebar: #ebebeb;
+            --bg-sidebar-hover: #e3e3e3;
+            --bg-sidebar-active: #ffffff;
+            --bg-badge: #f3f4f6;
+            
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-sidebar: #374151;
+            --text-sidebar-active: #111827;
+            --text-muted: #9ca3af;
+            
+            --border-primary: #e3e3e3;
+            --border-card: #e5e7eb;
+            --border-sidebar: #d1d5db;
+            
+            --shadow-sidebar-active: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-button: 0 1px 2px rgba(0, 0, 0, 0.05);
+            
+            --radius-sm: 4px;
+            --radius-md: 6px;
+            --radius-lg: 8px;
+            --radius-xl: 12px;
+            --radius-full: 50%;
+            
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --space-10: 40px;
+            --space-12: 48px;
+            --space-16: 64px;
+            --space-20: 80px;
+            
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-size-3xl: 24px;
+            --font-size-4xl: 28px;
+            --font-size-5xl: 32px;
+            
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+            
+            --line-height-tight: 1.25;
+            --line-height-base: 1.5;
+            --line-height-loose: 1.75;
+            
+            --transition-fast: 150ms ease;
+            --transition-base: 200ms ease;
+            --transition-slow: 300ms ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-base);
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Transparent Navigation */
+        .transparent-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            padding: 0 var(--space-6);
+        }
+
+        @media (max-width: 768px) {
+            .transparent-nav {
+                padding: 0 var(--space-4);
+                height: 70px;
+            }
+        }
+
+        .nav-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-wrap: wrap;
+            }
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-8);
+        }
+
+        @media (max-width: 768px) {
+            .nav-left {
+                order: 1;
+                width: 100%;
+                justify-content: center;
+                margin-bottom: var(--space-3);
+            }
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-xl);
+        }
+
+        .nav-brand i {
+            font-size: var(--font-size-2xl);
+            color: #4f46e5;
+        }
+
+        .nav-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-base);
+            padding: var(--space-3) var(--space-5);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(79, 70, 229, 0.2);
+        }
+
+        .nav-link:hover {
+            background: rgba(79, 70, 229, 0.1);
+            border-color: rgba(79, 70, 229, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .btn-cta {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            text-decoration: none;
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-lg);
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-base);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            transition: all var(--transition-base);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+        }
+
+        /* Hero Section - 現代化設計 */
+        .hero {
+            margin-top: 80px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 80px);
+            padding: var(--space-20) var(--space-6);
+        }
+
+        .hero-text {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: var(--font-weight-bold);
+            color: #ffffff;
+            margin-bottom: var(--space-6);
+            line-height: var(--line-height-tight);
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: var(--space-10);
+            line-height: var(--line-height-base);
+            animation: fadeInUp 1s ease-out 0.2s;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: var(--space-4);
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.4s;
+        }
+
+        .btn-hero {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            text-decoration: none;
+            padding: var(--space-4) var(--space-8);
+            border-radius: var(--radius-lg);
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-base);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            transition: all var(--transition-base);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .btn-hero:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-hero-primary {
+            background: #ffffff;
+            color: #667eea;
+            border-color: #ffffff;
+        }
+
+        .btn-hero-primary:hover {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-full);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-element-1 {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element-2 {
+            width: 60px;
+            height: 60px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-element-3 {
+            width: 100px;
+            height: 100px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Features Section - 現代化設計 */
+        .features {
+            background: var(--bg-secondary);
+            padding: var(--space-20) var(--space-6);
+            position: relative;
+        }
+
+        .features::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .features-header {
+            text-align: center;
+            margin-bottom: var(--space-20);
+        }
+
+        .features-title {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-4);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .features-subtitle {
+            font-size: var(--font-size-xl);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: var(--line-height-base);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--space-8);
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-xl);
+            padding: var(--space-10);
+            text-align: center;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform var(--transition-base);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-6);
+            color: #ffffff;
+            font-size: var(--font-size-3xl);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .feature-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-4);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: var(--line-height-base);
+            font-size: var(--font-size-base);
+        }
+
+        /* CTA Section - 現代化設計 */
+        .cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: var(--space-20) var(--space-6);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+            opacity: 0.5;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-title {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+            color: #ffffff;
+            margin-bottom: var(--space-4);
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-subtitle {
+            font-size: var(--font-size-xl);
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: var(--space-10);
+            line-height: var(--line-height-base);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: var(--space-4);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-cta-white {
+            background: #ffffff;
+            color: #667eea;
+            text-decoration: none;
+            padding: var(--space-4) var(--space-8);
+            border-radius: var(--radius-lg);
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-base);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            transition: all var(--transition-base);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-cta-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-cta-outline {
+            background: transparent;
+            color: #ffffff;
+            text-decoration: none;
+            padding: var(--space-4) var(--space-8);
+            border-radius: var(--radius-lg);
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-base);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            transition: all var(--transition-base);
+            border: 2px solid #ffffff;
+        }
+
+        .btn-cta-outline:hover {
+            background: #ffffff;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-primary);
+            padding: var(--space-12) var(--space-6);
+            text-align: center;
+            border-top: 1px solid var(--border-primary);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-8);
+            margin-bottom: var(--space-6);
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: var(--font-weight-medium);
+            transition: color var(--transition-fast);
+        }
+
+        .footer-link:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+    </style>
+</head>
+<body>
+    <!-- Transparent Navigation -->
+    <nav class="transparent-nav">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="/" class="nav-brand">
+                    <i class="fas fa-store"></i>
+                    <span>數位店長</span>
+                </a>
+                <a href="/pricing" class="nav-link">定價</a>
+            </div>
+            <div class="nav-right">
+                <a href="/login" class="nav-link">登入</a>
+                <a href="/register" class="btn-cta">
+                    <i class="fas fa-rocket"></i>
+                    免費試用
+                </a>
+            </div>
+        </div>
+    </nav>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="floating-element floating-element-1"></div>
+            <div class="floating-element floating-element-2"></div>
+            <div class="floating-element floating-element-3"></div>
+            
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">智能 LINE 客服預約系統</h1>
+                    <p class="hero-subtitle">讓您的店家擁有 24/7 AI 客服，自動處理預約，提升營運效率，創造更好的客戶體驗。</p>
+                    <div class="hero-buttons">
+                        <a href="/register" class="btn-hero btn-hero-primary">
+                            <i class="fas fa-rocket"></i>
+                            開始免費試用
+                        </a>
+                        <a href="/demo" class="btn-hero">
+                            <i class="fas fa-play"></i>
+                            觀看演示
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="features-container">
+                <div class="features-header">
+                    <h2 class="features-title">為什麼選擇數位店長？</h2>
+                    <p class="features-subtitle">我們提供完整的智能客服解決方案，讓您的店家營運更輕鬆</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3 class="feature-title">AI 智能客服</h3>
+                        <p class="feature-description">24/7 自動回應客戶問題，處理常見查詢，讓您專注於核心業務。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h3 class="feature-title">智能預約系統</h3>
+                        <p class="feature-description">自動化預約流程，即時確認預約，減少人為錯誤，提升客戶滿意度。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">數據分析</h3>
+                        <p class="feature-description">深入了解客戶行為，分析營運數據，做出更明智的商業決策。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3 class="feature-title">LINE 整合</h3>
+                        <p class="feature-description">無縫整合 LINE 平台，觸達數百萬用戶，提升客戶互動體驗。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="feature-title">安全可靠</h3>
+                        <p class="feature-description">企業級安全保護，數據加密存儲，確保您和客戶的資訊安全。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3 class="feature-title">輕鬆設定</h3>
+                        <p class="feature-description">直觀的管理介面，快速完成設定，無需技術背景也能輕鬆上手。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta">
+            <div class="cta-content">
+                <h2 class="cta-title">準備好提升您的店家營運了嗎？</h2>
+                <p class="cta-subtitle">加入數千家店家的行列，開始使用智能客服系統</p>
+                <div class="cta-buttons">
+                    <a href="/register" class="btn-cta-white">
+                        <i class="fas fa-rocket"></i>
+                        開始免費試用
+                    </a>
+                    <a href="/pricing" class="btn-cta-outline">
+                        <i class="fas fa-tag"></i>
+                        查看定價方案
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="/about" class="footer-link">關於我們</a>
+                <a href="/features" class="footer-link">功能介紹</a>
+                <a href="/pricing" class="footer-link">定價方案</a>
+                <a href="/contact" class="footer-link">聯絡我們</a>
+            </div>
+            <div class="footer-copyright">
+                <p>&copy; 2024 數位店長. 版權所有.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

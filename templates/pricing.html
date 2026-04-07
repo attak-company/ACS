@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>定價方案 - 數位店長</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #6366f1;
+            --accent-color: #8b5cf6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f9fafb;
+            --bg-white: #ffffff;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-white);
+        }
+
+        /* Fixed Navigation - 與 merchant.html 相同風格 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #000000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            height: 64px;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .navbar-brand i {
+            color: #ffffff;
+            font-size: 1.5rem;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+        }
+
+        .btn-outline:hover {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            margin-top: 80px;
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, #f8fafb 0%, #e0e7ff 100%);
+        }
+
+        .pricing-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .pricing-header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .pricing-header p {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .pricing-card {
+            background: var(--bg-white);
+            border-radius: 1rem;
+            border: 2px solid var(--border-color);
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: '推薦';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .pricing-plan {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text-light);
+        }
+
+        .pricing-description {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features li {
+            padding: 0.5rem 0;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pricing-features li i {
+            color: #10b981;
+            font-size: 1rem;
+        }
+
+        .pricing-features li.disabled i {
+            color: #ef4444;
+        }
+
+        .pricing-features li.disabled {
+            color: var(--text-light);
+            text-decoration: line-through;
+        }
+
+        /* FAQ Section */
+        .faq {
+            padding: 6rem 2rem;
+            background: var(--bg-white);
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .faq-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .faq-item {
+            background: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            background: var(--bg-light);
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .faq-question:hover {
+            background: #e5e7eb;
+        }
+
+        .faq-answer {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            color: var(--text-light);
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 1.5rem;
+            max-height: 500px;
+        }
+
+        .faq-item.active .faq-question {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            text-align: center;
+        }
+
+        .cta-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 3rem 2rem;
+            background: var(--bg-light);
+            text-align: center;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-copyright {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+
+            .navbar-container {
+                padding: 0 1rem;
+            }
+
+            .navbar-nav {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">
+                <i class="fas fa-store"></i>
+                <span>數位店長</span>
+            </a>
+            <div class="navbar-nav">
+                <a href="/login" class="nav-link">登入</a>
+                <a href="/register" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    開始免費試用
+                </a>
+                <a href="/pricing" class="nav-link">定價</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Pricing Section -->
+    <section class="pricing">
+        <div class="pricing-container">
+            <div class="pricing-header">
+                <h1>選擇適合您的方案</h1>
+                <p>彈性的定價方案，滿足不同規模店家的需求</p>
+            </div>
+            
+            <div class="pricing-grid">
+                <!-- Free Plan -->
+                <div class="pricing-card">
+                    <div class="pricing-plan">免費方案</div>
+                    <div class="pricing-price">
+                        $0<span>/月</span>
+                    </div>
+                    <div class="pricing-description">適合剛起步的小型店家</div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> 基本 AI 客服功能</li>
+                        <li><i class="fas fa-check"></i> 每月 100 則對話</li>
+                        <li><i class="fas fa-check"></i> 基本預約管理</li>
+                        <li><i class="fas fa-check"></i> LINE 整合</li>
+                        <li class="fas fa-check"></i> 基本數據分析</li>
+                        <li class="disabled"><i class="fas fa-times"></i> 進階 AI 功能</li>
+                        <li class="disabled"><i class="fas fa-times"></i> 優先技術支援</li>
+                    </ul>
+                    <a href="/register" class="btn btn-outline">
+                        <i class="fas fa-rocket"></i>
+                        開始免費試用
+                    </a>
+                </div>
+
+                <!-- Professional Plan -->
+                <div class="pricing-card featured">
+                    <div class="pricing-plan">專業方案</div>
+                    <div class="pricing-price">
+                        $29<span>/月</span>
+                    </div>
+                    <div class="pricing-description">適合成長中的店家</div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> 進階 AI 客服功能</li>
+                        <li><i class="fas fa-check"></i> 無限制對話</li>
+                        <li><i class="fas fa-check"></i> 進階預約管理</li>
+                        <li><i class="fas fa-check"></i> LINE 整合</li>
+                        <li><i class="fas fa-check"></i> 詳細數據分析</li>
+                        <li><i class="fas fa-check"></i> 自動化行銷工具</li>
+                        <li><i class="fas fa-check"></i> 優先技術支援</li>
+                    </ul>
+                    <a href="/register" class="btn btn-primary">
+                        <i class="fas fa-star"></i>
+                        選擇專業方案
+                    </a>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="pricing-card">
+                    <div class="pricing-plan">企業方案</div>
+                    <div class="pricing-price">
+                        $99<span>/月</span>
+                    </div>
+                    <div class="pricing-description">適合大型企業客戶</div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> 客製化 AI 客服</li>
+                        <li><i class="fas fa-check"></i> 無限制對話</li>
+                        <li><i class="fas fa-check"></i> 企業級預約管理</li>
+                        <li><i class="fas fa-check"></i> 多平台整合</li>
+                        <li><i class="fas fa-check"></i> 進階數據分析</li>
+                        <li><i class="fas fa-check"></i> API 接入</li>
+                        <li><i class="fas fa-check"></i> 專屬客戶經理</li>
+                    </ul>
+                    <a href="/contact" class="btn btn-outline">
+                        <i class="fas fa-phone"></i>
+                        聯絡銷售
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq">
+        <div class="faq-container">
+            <div class="faq-header">
+                <h2>常見問題</h2>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    <span>免費方案真的完全免費嗎？</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>是的，免費方案完全免費，包含基本的 AI 客服功能。如果需要更多功能，可以隨時升級到付費方案。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    <span>可以隨時更改方案嗎？</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>當然可以！您可以隨時升級或降級方案，更改會在下個計費週期生效。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    <span>支援哪些平台整合？</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>我們支援 LINE、Facebook Messenger、Instagram 等主流通訊平台，企業方案還提供 API 接入。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    <span>如何開始使用？</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>註冊帳戶後，只需幾分鐘即可完成設定。我們提供詳細的教學文件和技術支援。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="cta-container">
+            <h2>準備好開始了嗎？</h2>
+            <p>加入數千家店家的行列，提升您的客戶服務體驗</p>
+            <a href="/register" class="btn btn-white">
+                <i class="fas fa-rocket"></i>
+                開始免費試用
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-links">
+                <a href="/about">關於我們</a>
+                <a href="/features">功能介紹</a>
+                <a href="/pricing">定價方案</a>
+                <a href="/contact">聯絡我們</a>
+            </div>
+            <div class="footer-copyright">
+                <p>&copy; 2024 數位店長. 版權所有.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleFAQ(element) {
+            const faqItem = element.parentElement;
+            const allItems = document.querySelectorAll('.faq-item');
+            
+            // Close all other items
+            allItems.forEach(item => {
+                if (item !== faqItem) {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // Toggle current item
+            faqItem.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

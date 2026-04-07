@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入 - 數位店長</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Modern Design System */
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #34c759;
+            --warning: #ff9500;
+            --danger: #ff3b30;
+            --dark: #1d1d1f;
+            --light: #f9f9f9;
+            --white: #ffffff;
+            --gray-50: #f9f9f9;
+            --gray-100: #f5f5f7;
+            --gray-200: #e8e8ed;
+            --gray-300: #d2d2d7;
+            --gray-400: #b0b0b8;
+            --gray-500: #8e8e93;
+            --gray-600: #636366;
+            --gray-700: #48484a;
+            --gray-800: #3a3a3c;
+            --gray-900: #1d1d1f;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+            --shadow-xl: 0 16px 64px rgba(0,0,0,0.15);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background-attachment: fixed;
+            color: var(--dark);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(102,126,234,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118,75,162,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(240,147,251,0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            max-width: 500px;
+            width: 90%;
+            margin: 20px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+        }
+
+        .auth-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 80px rgba(0,0,0,0.2);
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .auth-header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 16px;
+            position: relative;
+            z-index: 1;
+            font-weight: 500;
+        }
+
+        .auth-body {
+            padding: 40px 30px;
+        }
+
+        .nav-tabs {
+            border-bottom: 2px solid var(--gray-200);
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.8);
+            padding: 0 20px;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--gray-600);
+            font-weight: 700;
+            padding: 16px 24px;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            transition: var(--transition);
+            background: transparent;
+            font-size: 15px;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-tabs .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            transform: translateX(-50%);
+            transition: width 0.3s;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--dark);
+            background: rgba(102,126,234,0.1);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--dark);
+            background: rgba(255,255,255,0.9);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .nav-tabs .nav-link.active::before {
+            width: 100%;
+        }
+
+        .form-floating {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 60px;
+            padding: 20px 50px 8px 16px;
+            font-size: 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            background: var(--white);
+            transition: var(--transition);
+            color: var(--dark);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+        }
+
+        .form-floating label {
+            position: absolute;
+            top: 50%;
+            left: 16px;
+            transform: translateY(-50%);
+            color: var(--gray-500);
+            font-size: 16px;
+            font-weight: 500;
+            transition: var(--transition);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-control:focus + label,
+        .form-control:not(:placeholder-shown) + label {
+            top: 8px;
+            font-size: 12px;
+            color: var(--primary);
+            transform: translateY(0);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--gray-500);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+            background: rgba(102,126,234,0.1);
+        }
+
+        .btn {
+            width: 100%;
+            height: 60px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+            box-shadow: 0 4px 16px rgba(102,126,234,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102,126,234,0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102,126,234,0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #28a745 100%);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(52,199,89,0.3);
+        }
+
+        .alert {
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideInDown 0.3s ease-out;
+        }
+
+        .alert-danger {
+            background: rgba(255,59,48,0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .alert-success {
+            background: rgba(52,199,89,0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .text-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .text-link:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .forgot-password-section {
+            display: none;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .forgot-password-section.show {
+            display: block;
+            animation: slideInDown 0.3s ease-out;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+
+        .form-check-label {
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gray-200);
+        }
+
+        .divider span {
+            background: var(--white);
+            padding: 0 16px;
+            color: var(--gray-500);
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group .form-control {
+            padding-right: 120px;
+        }
+
+        .input-group-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .input-group-text:hover {
+            background: rgba(102,126,234,0.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+            padding: 24px;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 30px 24px;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-close {
+            background: transparent;
+            border: none;
+            color: var(--white);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .btn-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                width: 95%;
+                margin: 10px;
+            }
+
+            .auth-body {
+                padding: 30px 20px;
+            }
+
+            .nav-tabs .nav-link {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+
+            .form-control {
+                height: 50px;
+                padding: 16px 12px 6px 12px;
+            }
+
+            .btn {
+                height: 50px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>🤖 數位店長</h1>
+            <p>智能 LINE 客服預約系統</p>
+        </div>
+        
+        <div class="auth-body">
+            <!-- 錯誤/成功訊息 -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} show">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- 登入/註冊 Tab -->
+            <ul class="nav nav-tabs" id="authTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">登入</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">註冊</button>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="authTabContent">
+                <!-- 登入表單 -->
+                <div class="tab-pane fade show active" id="login" role="tabpanel">
+                    <form method="POST" action="/login" id="loginForm">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="login-username" name="username" placeholder="使用者名稱或電子郵件" required>
+                            <label for="login-username">
+                                <i class="fas fa-user"></i>
+                                使用者名稱或電子郵件
+                            </label>
+                        </div>
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="login-password" name="password" placeholder="密碼" required>
+                            <label for="login-password">
+                                <i class="fas fa-lock"></i>
+                                密碼
+                            </label>
+                            <button type="button" class="password-toggle" onclick="togglePassword('login-password', this)">
+                                <i class="fas fa-eye" id="login-password-icon"></i>
+                            </button>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me">
+                            <label class="form-check-label" for="remember-me">
+                                記住我
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            登入系統
+                        </button>
+                        <div class="text-center">
+                            <a href="#" class="text-link" id="forgotPasswordLink">
+                                <i class="fas fa-key me-1"></i>
+                                忘記密碼？
+                            </a>
+                        </div>
+                    </form>
+                    
+                    <!-- 忘記密碼區域 -->
+                    <div class="forgot-password-section" id="forgotPasswordSection">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            請輸入您的電子郵件地址，我們將發送驗證碼給您。
+                        </div>
+                        
+                        <form id="forgotForm">
+                            <div class="form-floating">
+                                <input type="email" class="form-control" id="forgot-email" name="email" placeholder="電子郵件" required>
+                                <label for="forgot-email">
+                                    <i class="fas fa-envelope"></i>
+                                    電子郵件
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary mb-3" id="sendCodeBtn">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                發送驗證碼
+                            </button>
+                            <div class="text-center">
+                                <a href="#" class="text-link" id="backToLogin">
+                                    <i class="fas fa-arrow-left me-1"></i>
+                                    返回登入
+                                </a>
+                            </div>
+                        </form>
+                        
+                        <!-- 驗證碼和重設密碼表單 -->
+                        <div id="resetPasswordSection" style="display: none;">
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i>
+                                驗證碼已發送！請檢查您的郵件。
+                            </div>
+                            
+                            <form id="resetForm">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="reset-code" placeholder="驗證碼" required maxlength="6">
+                                    <label for="reset-code">
+                                        <i class="fas fa-shield-alt"></i>
+                                        驗證碼
+                                    </label>
+                                </div>
+                                
+                                <div class="form-floating">
+                                    <input type="password" class="form-control" id="reset-password" placeholder="新密碼" required minlength="8">
+                                    <label for="reset-password">
+                                        <i class="fas fa-lock"></i>
+                                        新密碼（至少8位）
+                                    </label>
+                                    <button type="button" class="password-toggle" onclick="togglePassword('reset-password', this)">
+                                        <i class="fas fa-eye" id="reset-password-icon"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="form-floating">
+                                    <input type="password" class="form-control" id="reset-confirm-password" placeholder="確認新密碼" required>
+                                    <label for="reset-confirm-password">
+                                        <i class="fas fa-lock"></i>
+                                        確認新密碼
+                                    </label>
+                                    <button type="button" class="password-toggle" onclick="togglePassword('reset-confirm-password', this)">
+                                        <i class="fas fa-eye" id="reset-confirm-password-icon"></i>
+                                    </button>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success mb-3" id="resetBtn">
+                                    <i class="fas fa-key me-2"></i>
+                                    重設密碼
+                                </button>
+                                <div class="text-center">
+                                    <a href="#" class="text-link" id="backToLogin2">
+                                        <i class="fas fa-arrow-left me-1"></i>
+                                        返回登入
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 註冊表單 -->
+                <div class="tab-pane fade" id="register" role="tabpanel">
+                    <form method="POST" action="/register" id="registerForm">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="register-username" name="username" placeholder="使用者名稱" required>
+                            <label for="register-username">
+                                <i class="fas fa-user"></i>
+                                使用者名稱
+                            </label>
+                        </div>
+                        <div class="form-floating">
+                            <input type="email" class="form-control" id="register-email" name="email" placeholder="電子郵件" required>
+                            <label for="register-email">
+                                <i class="fas fa-envelope"></i>
+                                電子郵件
+                            </label>
+                        </div>
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="register-password" name="password" placeholder="密碼" required minlength="6">
+                            <label for="register-password">
+                                <i class="fas fa-lock"></i>
+                                密碼（至少6位）
+                            </label>
+                            <button type="button" class="password-toggle" onclick="togglePassword('register-password', this)">
+                                <i class="fas fa-eye" id="register-password-icon"></i>
+                            </button>
+                        </div>
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="register-confirm-password" name="confirm_password" placeholder="確認密碼" required>
+                            <label for="register-confirm-password">
+                                <i class="fas fa-lock"></i>
+                                確認密碼
+                            </label>
+                            <button type="button" class="password-toggle" onclick="togglePassword('register-confirm-password', this)">
+                                <i class="fas fa-eye" id="register-confirm-password-icon"></i>
+                            </button>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-2"></i>
+                            立即註冊
+                        </button>
+                        <div class="text-center mt-3">
+                            已有帳號？ <a href="#" class="text-link" onclick="showLoginTab()">立即登入</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 切換密碼顯示/隱藏
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(inputId + '-icon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // 顯示登入 Tab
+        function showLoginTab() {
+            const loginTab = document.getElementById('login-tab');
+            const registerTab = document.getElementById('register-tab');
+            const loginPane = document.getElementById('login');
+            const registerPane = document.getElementById('register');
+            
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            loginPane.classList.add('show', 'active');
+            registerPane.classList.remove('show', 'active');
+        }
+
+        // 顯示忘記密碼區域
+        function showForgotPassword() {
+            const forgotSection = document.getElementById('forgotPasswordSection');
+            const loginForm = document.getElementById('loginForm');
+            
+            loginForm.style.display = 'none';
+            forgotSection.classList.add('show');
+        }
+
+        // 隱藏忘記密碼區域
+        function hideForgotPassword() {
+            const forgotSection = document.getElementById('forgotPasswordSection');
+            const loginForm = document.getElementById('loginForm');
+            
+            forgotSection.classList.remove('show');
+            loginForm.style.display = 'block';
+        }
+
+        // 顯示重設密碼 Modal
+        function showResetModal() {
+            document.getElementById('resetModal').classList.add('show');
+        }
+
+        // 關閉重設密碼 Modal
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.remove('show');
+            // 清空表單
+            document.getElementById('resetForm').reset();
+        }
+
+        // 忘記密碼連結點擊
+        document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            showForgotPassword();
+        });
+
+        // 返回登入連結點擊
+        document.getElementById('backToLogin').addEventListener('click', function(e) {
+            e.preventDefault();
+            hideForgotPassword();
+        });
+
+        // 返回登入連結點擊（重設密碼後）
+        document.getElementById('backToLogin2').addEventListener('click', function(e) {
+            e.preventDefault();
+            hideForgotPassword();
+        });
+
+        // 忘記密碼表單提交
+        document.getElementById('forgotForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('forgot-email').value;
+            const submitBtn = document.getElementById('sendCodeBtn');
+            
+            // 顯示載入狀態
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>發送中...';
+            
+            try {
+                const response = await fetch('/api/send-verification-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 顯示重設密碼表單
+                    document.getElementById('forgotForm').style.display = 'none';
+                    document.getElementById('resetPasswordSection').style.display = 'block';
+                } else {
+                    showError(result.error || '發送驗證碼失敗，請稍後再試。');
+                }
+            } catch (error) {
+                showError('網路錯誤，請稍後再試。');
+            } finally {
+                // 恢復按鈕狀態
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>發送驗證碼';
+            }
+        });
+
+        // 重設密碼表單提交
+        document.getElementById('resetForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('forgot-email').value;
+            const code = document.getElementById('reset-code').value;
+            const newPassword = document.getElementById('reset-password').value;
+            const confirmPassword = document.getElementById('reset-confirm-password').value;
+            const submitBtn = document.getElementById('resetBtn');
+            
+            // 驗證密碼
+            if (newPassword !== confirmPassword) {
+                showError('密碼確認不一致');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showError('新密碼至少需要8個字元');
+                return;
+            }
+            
+            // 顯示載入狀態
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>重設中...';
+            
+            try {
+                const response = await fetch('/api/change-password-with-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        verification_code: code,
+                        new_password: newPassword
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('密碼重設成功！請使用新密碼登入。');
+                    // 清空表單並返回登入
+                    document.getElementById('resetForm').reset();
+                    document.getElementById('forgotForm').reset();
+                    hideForgotPassword();
+                } else {
+                    showError(result.error || '重設密碼失敗，請檢查驗證碼是否正確。');
+                }
+            } catch (error) {
+                showError('網路錯誤，請稍後再試。');
+            } finally {
+                // 恢復按鈕狀態
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-key me-2"></i>重設密碼';
+            }
+        });
+
+        // 重設密碼表單提交
+        async function submitResetPassword() {
+            const modal = document.getElementById('resetModal');
+            const email = modal.dataset.email;
+            const code = document.getElementById('reset-code').value;
+            const newPassword = document.getElementById('reset-password').value;
+            const confirmPassword = document.getElementById('reset-confirm-password').value;
+            
+            // 驗證密碼
+            if (newPassword !== confirmPassword) {
+                showError('密碼確認不一致');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showError('新密碼至少需要8個字元');
+                return;
+            }
+            
+            const submitBtn = modal.querySelector('.btn-success');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>重設中...';
+            
+            try {
+                const response = await fetch('/api/change-password-with-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        verification_code: code,
+                        new_password: newPassword
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('密碼重設成功！請使用新密碼登入。');
+                    closeResetModal();
+                    hideForgotPassword();
+                } else {
+                    showError(result.error || '重設密碼失敗，請檢查驗證碼是否正確。');
+                }
+            } catch (error) {
+                showError('網路錯誤，請稍後再試。');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>重設密碼';
+            }
+        }
+
+        // 顯示錯誤訊息
+        function showError(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger show';
+            alertDiv.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i>${message}`;
+            
+            const authBody = document.querySelector('.auth-body');
+            authBody.insertBefore(alertDiv, authBody.firstChild);
+            
+            // 3秒後自動隱藏
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // 顯示成功訊息
+        function showSuccess(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success show';
+            alertDiv.innerHTML = `<i class="fas fa-check-circle me-2"></i>${message}`;
+            
+            const authBody = document.querySelector('.auth-body');
+            authBody.insertBefore(alertDiv, authBody.firstChild);
+            
+            // 3秒後自動隱藏
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // 防止表單重複提交
+        let isSubmitting = false;
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            if (isSubmitting) {
+                e.preventDefault();
+                return false;
+            }
+            isSubmitting = true;
+            setTimeout(() => {
+                isSubmitting = false;
+            }, 3000);
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            if (isSubmitting) {
+                e.preventDefault();
+                return false;
+            }
+            isSubmitting = true;
+            setTimeout(() => {
+                isSubmitting = false;
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入測試</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .user-info {
+            background: #e3f2fd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #2196f3;
+        }
+        .test-form {
+            background: #f3e5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #9c27b0;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 登入測試頁面</h1>
+    
+    <div class="warning">
+        <strong>注意：</strong>這是一個測試頁面，用於檢查登入功能。請使用以下測試帳號進行測試。
+    </div>
+
+    <div class="test-section">
+        <h2>📋 現有用戶列表</h2>
+        <p>以下是資料庫中的現有用戶：</p>
+        
+        <div class="user-info">
+            <h3>👤 測試用戶 (推薦使用)</h3>
+            <p><strong>用戶名：</strong> testuser</p>
+            <p><strong>郵件：</strong> test@example.com</p>
+            <p><strong>密碼：</strong> 123456</p>
+        </div>
+
+        <div class="user-info">
+            <h3>👤 管理員用戶</h3>
+            <p><strong>用戶名：</strong> admin</p>
+            <p><strong>郵件：</strong> admin@example.com</p>
+            <p><strong>密碼：</strong> (需要你自己設置)</p>
+        </div>
+
+        <div class="user-info">
+            <h3>👤 其他用戶</h3>
+            <p><strong>用戶名：</strong> Attak</p>
+            <p><strong>郵件：</strong> attak.company@gmail.com</p>
+            <p><strong>密碼：</strong> (需要你自己設置)</p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 登入測試</h2>
+        <p>使用以下表單測試登入功能：</p>
+        
+        <form action="/login" method="POST" class="test-form">
+            <h3>測試登入</h3>
+            <label for="username">用戶名或郵件：</label>
+            <input type="text" id="username" name="username" value="testuser" required>
+            
+            <label for="password">密碼：</label>
+            <input type="password" id="password" name="password" value="123456" required>
+            
+            <button type="submit">🚀 測試登入</button>
+        </form>
+    </div>
+
+    <div class="test-section">
+        <h2>🔗 快速連結</h2>
+        <p>
+            <a href="/login" style="background: #2196f3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+                📱 前往正式登入頁面
+            </a>
+        </p>
+        <p>
+            <a href="/" style="background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+                🏠 返回首頁
+            </a>
+        </p>
+    </div>
+
+    <div class="test-section">
+        <h2>🐛 問題診斷</h2>
+        <p>如果登入失敗，請檢查以下項目：</p>
+        <ul>
+            <li>✅ 確認用戶名或郵件輸入正確</li>
+            <li>✅ 確認密碼輸入正確（注意大小寫）</li>
+            <li>✅ 確認沒有多餘的空格</li>
+            <li>✅ 嘗試使用測試用戶：testuser / 123456</li>
+            <li>✅ 檢查瀏覽器控制台是否有錯誤訊息</li>
+        </ul>
+    </div>
+
+    <script>
+        // 自動填入測試用戶
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('登入測試頁面載入完成');
+            console.log('推薦使用測試用戶：testuser / 123456');
+        });
+    </script>
+</body>
+</html>
