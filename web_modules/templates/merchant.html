@@ -114,15 +114,23 @@
             top: 0;
             left: 0;
             right: 0;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 3000;
+            border-bottom: none;
+            overflow: visible;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
         }
+
+        /* 導覽列維持平直 */
 
         .main-layout-container {
             display: flex;
             flex: 1;
             margin-top: 64px;
+            background-color: #000000;
+            overflow: hidden;
         }
+
+        /* 頂部白色區塊改為參考檔樣式 */
 
         /* Image-style Sidebar */
         .sidebar {
@@ -137,6 +145,7 @@
             bottom: 0;
             z-index: 999;
             overflow: hidden;
+            border-top-left-radius: 20px;
         }
 
         .sidebar-nav {
@@ -217,6 +226,7 @@
             margin-left: 280px;
             overflow-y: auto;
             height: calc(100vh - 64px);
+            border-top-right-radius: 20px;
         }
 
         .nav-left {
@@ -224,15 +234,16 @@
             align-items: center;
         }
 
+        .nav-logo img {
+            height: 32px;
+            width: auto;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
         .nav-logo {
             display: flex;
             align-items: center;
-            gap: var(--space-3);
-            color: white;
-        }
-
-        .nav-logo i {
-            font-size: var(--font-size-xl);
             color: white;
         }
 
@@ -240,6 +251,8 @@
             font-size: var(--font-size-lg);
             font-weight: var(--font-weight-bold);
             color: white;
+            display: flex;
+            align-items: center;
         }
 
         .nav-right {
@@ -918,6 +931,7 @@
                 display: none;
             }
         }
+
     </style>
 </head>
 <body data-username="{{ current_user.username if current_user else 'unknown' }}">
@@ -926,7 +940,7 @@
         <nav class="full-width-nav">
             <div class="nav-left">
                 <div class="nav-logo">
-                    <i class="fas fa-store"></i>
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="數位店長 Logo">
                     <span class="nav-brand">數位店長</span>
                 </div>
             </div>
@@ -960,6 +974,10 @@
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="account-dropdown" id="accountDropdown">
+                        <div class="account-item" onclick="goToAccountSettings()">
+                            <i class="fas fa-user-cog"></i>
+                            <span>帳戶設定</span>
+                        </div>
                         <div class="account-item" onclick="addNewAccount()">
                             <i class="fas fa-user-plus"></i>
                             <span>新增帳號</span>
@@ -999,7 +1017,7 @@
                 </div>
                 
                 <div class="sidebar-footer">
-                    <a href="#" class="sidebar-nav-item" data-section="settings">
+                    <a href="{{ url_for('auth.account_settings') }}" class="sidebar-nav-item">
                         <i class="fas fa-cog"></i> 設定
                     </a>
                 </div>
@@ -1009,7 +1027,7 @@
         <main class="main-content">
             <!-- Shopify-style Top Bar -->
             <header class="top-bar">
-                <h1 class="page-title" id="section-title">店家資料</h1>
+                    <h1 class="page-title" id="section-title">店家資料</h1>
                 
                 <div class="page-actions">
                     <button class="btn btn-outline" onclick="refreshCurrentSection()">
@@ -1220,148 +1238,9 @@
                                 </ul>
                             </div>
                         </div>
-                    </div>
                 </div>
 
-                <!-- Settings Section -->
-                <div id="settings-section" class="content-section" style="display: none;">
-                    <div class="d-flex gap-6">
-                        <div class="w-100">
-                            <div class="card mb-6">
-                                <div class="card-header">
-                                    <h5>基本資料設定</h5>
-                                </div>
-                                <div class="card-body">
-                                    <form id="profile-form">
-                                        <div class="form-group">
-                                            <label class="form-label">用戶名稱</label>
-                                            <input type="text" class="form-control" id="profile-username" required>
-                                            <div class="form-text">用戶名稱將用於登入系統</div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">電子郵件</label>
-                                            <input type="email" class="form-control" id="profile-email" required>
-                                            <div class="form-text">電子郵件將用於接收系統通知</div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">帳戶創建時間</label>
-                                            <input type="text" class="form-control" id="profile-created-at" readonly>
-                                            <div class="form-text">帳戶創建的時間</div>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-save"></i> 儲存基本資料
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>密碼修改</h5>
-                                </div>
-                                <div class="card-body">
-                                    <!-- 密碼修改方式選擇 -->
-                                    <div class="mb-6">
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-outline active" id="currentPasswordBtn" onclick="showPasswordChangeType('current')">
-                                                使用目前密碼修改
-                                            </button>
-                                            <button type="button" class="btn btn-outline" id="emailCodeBtn" onclick="showPasswordChangeType('email')">
-                                                使用電子郵件驗證碼修改
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- 使用目前密碼修改 -->
-                                    <div id="currentPasswordSection" style="display: block;">
-                                        <form id="password-form">
-                                            <div class="form-group">
-                                                <label class="form-label">目前密碼</label>
-                                                <input type="password" class="form-control" id="current-password" required>
-                                                <div class="form-text">請輸入您目前的密碼</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">新密碼</label>
-                                                <input type="password" class="form-control" id="new-password" required minlength="8">
-                                                <div class="form-text">密碼至少需要 8 個字元，包含大小寫字母和數字</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">確認新密碼</label>
-                                                <input type="password" class="form-control" id="confirm-password" required minlength="8">
-                                                <div class="form-text">請再次輸入新密碼</div>
-                                            </div>
-                                            <button type="submit" class="btn btn-warning">
-                                                <i class="fas fa-key"></i> 修改密碼
-                                            </button>
-                                        </form>
-                                    </div>
-
-                                    <!-- 使用電子郵件驗證碼修改 -->
-                                    <div id="emailCodeSection" style="display: none;">
-                                        <form id="email-code-form">
-                                            <div class="form-group">
-                                                <label class="form-label">電子郵件</label>
-                                                <input type="email" class="form-control" id="email-for-code" required>
-                                                <div class="form-text">驗證碼將發送至此電子郵件</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">新密碼</label>
-                                                <input type="password" class="form-control" id="new-password-email" required minlength="8">
-                                                <div class="form-text">密碼至少需要 8 個字元，包含大小寫字母和數字</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">確認新密碼</label>
-                                                <input type="password" class="form-control" id="confirm-password-email" required minlength="8">
-                                                <div class="form-text">請再次輸入新密碼</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">驗證碼</label>
-                                                <div class="d-flex gap-3">
-                                                    <input type="text" class="form-control" id="verification-code" placeholder="請輸入驗證碼" required>
-                                                    <button type="button" class="btn btn-outline" onclick="sendVerificationCode()">
-                                                        <i class="fas fa-paper-plane"></i> 發送驗證碼
-                                                    </button>
-                                                </div>
-                                                <div class="form-text">驗證碼有效期限為 10 分鐘</div>
-                                            </div>
-                                            <button type="submit" class="btn btn-warning">
-                                                <i class="fas fa-key"></i> 修改密碼
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="width: 320px;">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>安全提醒</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="alert alert-info mb-4">
-                                        <i class="fas fa-info-circle"></i> 帳戶安全建議：
-                                        <ul class="mb-0 mt-2">
-                                            <li>定期更換密碼</li>
-                                            <li>使用強密碼（包含大小寫、數字、符號）</li>
-                                            <li>不要與他人分享帳戶資訊</li>
-                                            <li>定期檢查帳戶活動</li>
-                                        </ul>
-                                    </div>
-                                    
-                                    <div class="alert alert-warning">
-                                        <i class="fas fa-exclamation-triangle"></i> 重要提醒：
-                                        <ul class="mb-0 mt-2">
-                                            <li>修改密碼後需要重新登入</li>
-                                            <li>請妥善保管您的登入資訊</li>
-                                            <li>如發現異常活動，請立即修改密碼</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- 帳戶設定移到獨立頁面 /account-settings，避免與商家管理區混用 -->
             </div>
         </main>
         </div>
@@ -1397,11 +1276,36 @@
                                 <input type="number" class="form-control" id="service-price" required min="0" step="0.01">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="form-label">標記顏色</label>
+                            <input type="color" class="form-control form-control-color" id="service-color" value="#007bff">
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" data-bs-dismiss="modal">取消</button>
                     <button type="button" class="btn btn-primary" onclick="saveService()">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-plain" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this service?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
                 </div>
             </div>
         </div>
@@ -1416,6 +1320,7 @@
         // Global variables
         let currentServiceId = null;
         let calendar = null;
+        let deleteServiceId = null;
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
@@ -1675,6 +1580,15 @@
             showAlert('新增帳號功能開發中', 'info');
         }
 
+        // Go to account settings
+        function goToAccountSettings() {
+            const accountDropdown = document.getElementById('accountDropdown');
+            accountDropdown.classList.remove('show');
+            
+            // Redirect to account settings
+            window.location.href = '/account-settings';
+        }
+
         // Logout
         function logout() {
             const accountDropdown = document.getElementById('accountDropdown');
@@ -1771,40 +1685,58 @@
         // Setup forms
         function setupForms() {
             // Basic form
-            document.getElementById('basic-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveBasicInfo();
-            });
+            const basicForm = document.getElementById('basic-form');
+            if (basicForm) {
+                basicForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveBasicInfo();
+                });
+            }
 
             // Service form
-            document.getElementById('service-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveService();
-            });
+            const serviceForm = document.getElementById('service-form');
+            if (serviceForm) {
+                serviceForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveService();
+                });
+            }
 
             // Schedule form
-            document.getElementById('schedule-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveSchedule();
-            });
+            const scheduleForm = document.getElementById('schedule-form');
+            if (scheduleForm) {
+                scheduleForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveSchedule();
+                });
+            }
 
             // LINE form
-            document.getElementById('line-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveLineSettings();
-            });
+            const lineForm = document.getElementById('line-form');
+            if (lineForm) {
+                lineForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveLineSettings();
+                });
+            }
 
             // Profile form
-            document.getElementById('profile-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveUserProfile();
-            });
+            const profileForm = document.getElementById('profile-form');
+            if (profileForm) {
+                profileForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveUserProfile();
+                });
+            }
 
             // Password form
-            document.getElementById('password-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                changePassword();
-            });
+            const passwordForm = document.getElementById('password-form');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    changePassword();
+                });
+            }
         }
 
         // Save basic info
@@ -1842,16 +1774,23 @@
         // Load services
         function loadServices() {
             fetch('/api/services')
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.error || '無法載入服務') });
+                    }
+                    return response.json();
+                })
                 .then(services => {
                     const tbody = document.getElementById('services-list');
                     tbody.innerHTML = '';
                     
                     services.forEach(service => {
                         const tr = document.createElement('tr');
+                        const color = service.color || '#007bff';
                         tr.innerHTML = `
                             <td>
                                 <div class="d-flex align-items-center">
+                                    <div style="width: 12px; height: 12px; border-radius: 50%; background-color: ${color}; margin-right: 10px;"></div>
                                     <strong>${service.name}</strong>
                                 </div>
                             </td>
@@ -1876,16 +1815,29 @@
                         tbody.appendChild(tr);
                     });
                 })
-                .catch(error => console.error('Error loading services:', error));
+                .catch(error => {
+                    console.error('Error loading services:', error);
+                    showAlert(error.message, 'danger');
+                });
         }
 
         // Save service
         function saveService() {
+            const name = document.getElementById('service-name').value;
+            const duration = document.getElementById('service-duration').value;
+            const price = document.getElementById('service-price').value;
+
+            if (!name || !duration || !price) {
+                showAlert('請填寫必填欄位', 'warning');
+                return;
+            }
+
             const data = {
-                name: document.getElementById('service-name').value,
+                name: name,
                 description: document.getElementById('service-description').value,
-                duration: parseInt(document.getElementById('service-duration').value),
-                price: parseFloat(document.getElementById('service-price').value)
+                duration: parseInt(duration),
+                price: parseFloat(price),
+                color: document.getElementById('service-color') ? document.getElementById('service-color').value : '#007bff'
             };
 
             const url = currentServiceId ? `/api/services/${currentServiceId}` : '/api/services';
@@ -1898,52 +1850,85 @@
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.error || '儲存失敗') });
+                }
+                return response.json();
+            })
             .then(data => {
                 showAlert('服務儲存成功', 'success');
-                bootstrap.Modal.getInstance(document.getElementById('serviceModal')).hide();
+                const modalEl = document.getElementById('serviceModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
                 loadServices();
                 resetServiceForm();
             })
             .catch(error => {
                 console.error('Error saving service:', error);
-                showAlert('儲存失敗', 'danger');
+                showAlert(error.message, 'danger');
             });
         }
 
         // Edit service
         function editService(id) {
             fetch(`/api/services/${id}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
                 .then(service => {
                     currentServiceId = service.id;
                     document.getElementById('service-name').value = service.name;
                     document.getElementById('service-description').value = service.description || '';
                     document.getElementById('service-duration').value = service.duration;
                     document.getElementById('service-price').value = service.price;
+                    if (document.getElementById('service-color')) {
+                        document.getElementById('service-color').value = service.color || '#007bff';
+                    }
                     document.getElementById('serviceModalLabel').textContent = '編輯服務項目';
-                    new bootstrap.Modal(document.getElementById('serviceModal')).show();
+                    const modal = new bootstrap.Modal(document.getElementById('serviceModal'));
+                    modal.show();
                 })
-                .catch(error => console.error('Error loading service:', error));
+                .catch(error => {
+                    console.error('Error loading service:', error);
+                    showAlert('獲取服務資料失敗', 'danger');
+                });
         }
 
         // Delete service
         function deleteService(id) {
-            if (confirm('確定要刪除這個服務項目嗎？')) {
-                fetch(`/api/services/${id}`, {
+            deleteServiceId = id;
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            modal.show();
+        }
+
+        // Confirm delete service
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (deleteServiceId) {
+                fetch(`/api/services/${deleteServiceId}`, {
                     method: 'DELETE'
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.error || '刪除失敗') });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     showAlert('服務刪除成功', 'success');
                     loadServices();
+                    const modalEl = document.getElementById('deleteConfirmModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    deleteServiceId = null;
                 })
                 .catch(error => {
                     console.error('Error deleting service:', error);
-                    showAlert('刪除失敗', 'danger');
+                    showAlert(error.message, 'danger');
                 });
             }
-        }
+        });
 
         // Reset service form
         function resetServiceForm() {
@@ -2149,7 +2134,7 @@
 
         // Load user profile
         function loadUserProfile() {
-            fetch('/api/user/profile')
+            fetch('/api/account')
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('profile-username').value = data.username;
@@ -2172,7 +2157,7 @@
                 email: document.getElementById('profile-email').value
             };
 
-            fetch('/api/user/profile', {
+            fetch('/api/account', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -2211,7 +2196,7 @@
                 confirm_password: confirmPassword
             };
 
-            fetch('/api/user/change-password', {
+            fetch('/api/change-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

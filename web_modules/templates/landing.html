@@ -147,6 +147,12 @@
             }
         }
 
+        .nav-brand img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+
         .nav-brand {
             display: flex;
             align-items: center;
@@ -155,11 +161,6 @@
             color: var(--text-primary);
             font-weight: var(--font-weight-bold);
             font-size: var(--font-size-xl);
-        }
-
-        .nav-brand i {
-            font-size: var(--font-size-2xl);
-            color: #4f46e5;
         }
 
         .nav-link {
@@ -607,7 +608,7 @@
         <div class="nav-container">
             <div class="nav-left">
                 <a href="/" class="nav-brand">
-                    <i class="fas fa-store"></i>
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="數位店長 Logo">
                     <span>數位店長</span>
                 </a>
                 <a href="/pricing" class="nav-link">定價</a>

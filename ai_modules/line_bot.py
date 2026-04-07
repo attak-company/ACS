@@ -2,6 +2,7 @@
 # 負責：LINE Messaging API 的傳送回覆
 
 try:
+    import time
     from linebot import LineBotApi, WebhookHandler
     from linebot.exceptions import InvalidSignatureError
     from linebot.models import (
@@ -47,31 +48,27 @@ class LineBotHandler:
         self.ai_service = AIService(merchant.google_gemini_api_key)
     
     def handle_webhook(self, body: str, signature: str):
-        """處理 webhook 請求"""
-        try:
-            if self.handler is None:
-                print("LINE Bot SDK not available")
-                return
-            
-            self.handler.handle(body, signature)
-        except Exception as e:
-            print(f"Webhook handling error: {e}")
-    
+        """處理 Webhook 請求"""
+        if self.handler is None:
+            return
+        self.handler.handle(body, signature)
+
     def handle_message(self, event: MessageEvent):
         """處理文字訊息"""
-        if MessageEvent is None:
+        if not isinstance(event.message, TextMessage):
             return
             
         user_message = event.message.text
         user_id = event.source.user_id
+        reply_token = event.reply_token
         
         try:
-            # 分析用戶意圖
+            # 優化意圖分析：優先使用關鍵字匹配以達成秒回
             intent = self.ai_service.analyze_intent(user_message)
             
             # 根據意圖處理
-            if intent['appointment_request']:
-                self._handle_appointment_request(user_message, user_id)
+            if intent.get('appointment_request'):
+                self._handle_appointment_request(user_message, user_id, reply_token)
             else:
                 # 使用 AI 生成回覆
                 response = self.ai_service.generate_response(
@@ -79,11 +76,11 @@ class LineBotHandler:
                     self.merchant.name, 
                     self.merchant.ai_tone or "友善專業"
                 )
-                self._reply_message(event.reply_token, response)
+                self._reply_message(reply_token, response)
                 
         except Exception as e:
             print(f"Message handling error: {e}")
-            self._reply_message(event.reply_token, "抱歉，系統發生錯誤，請稍後再試。")
+            self._reply_message(reply_token, "抱歉，系統發生錯誤，請稍後再試。")
     
     def handle_postback(self, event: PostbackEvent):
         """處理 Postback 事件"""
@@ -109,14 +106,14 @@ class LineBotHandler:
             print(f"Postback handling error: {e}")
             self._reply_message(event.reply_token, "抱歉，系統發生錯誤，請稍後再試。")
     
-    def _handle_appointment_request(self, user_message: str, user_id: str):
+    def _handle_appointment_request(self, user_message: str, user_id: str, reply_token: str):
         """處理預約請求"""
         try:
             # 獲取服務列表
             services = Service.query.filter_by(merchant_id=self.merchant.id).all()
             
             if not services:
-                self._reply_message(user_id, "目前沒有可預約的服務項目。")
+                self._reply_message(reply_token, "目前沒有可預約的服務項目。")
                 return
             
             # 生成服務選單
@@ -125,7 +122,7 @@ class LineBotHandler:
                 service_items.append(
                     QuickReplyButton(
                         action=MessageAction(
-                            label=f"{service.name} ({service.duration}分鐘, ${service.price})",
+                            label=f"{service.name} (${service.price})",
                             text=f"我想預約{service.name}"
                         )
                     )
@@ -134,14 +131,14 @@ class LineBotHandler:
             # 發送服務選單
             quick_reply = QuickReply(items=service_items)
             self._reply_message(
-                user_id, 
+                reply_token, 
                 "請選擇您想預約的服務項目：",
                 quick_reply=quick_reply
             )
             
         except Exception as e:
             print(f"Appointment request handling error: {e}")
-            self._reply_message(user_id, "抱歉，無法處理預約請求，請稍後再試。")
+            self._reply_message(reply_token, "抱歉，無法處理預約請求，請稍後再試。")
     
     def _handle_service_selection(self, user_id: str, service_name: str):
         """處理服務選擇"""

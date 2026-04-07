@@ -200,3 +200,131 @@ def api_change_password_with_code():
         db.session.rollback()
         print(f"使用驗證碼修改密碼錯誤: {e}")
         return jsonify({'error': f'修改失敗: {str(e)}'}), 500
+
+@auth_bp.route('/account-settings')
+@login_required
+def account_settings():
+    """賬戶設置頁面"""
+    return render_template('account_settings.html')
+
+@auth_bp.route('/api/account', methods=['GET', 'PUT'])
+@login_required
+def api_account():
+    """賬戶信息 API"""
+    if request.method == 'PUT':
+        data = request.json
+        
+        # 更新用戶信息
+        current_user.username = data.get('username', current_user.username)
+        
+        # 如果修改了郵件，需要驗證
+        if data.get('email') and data['email'] != current_user.email:
+            # 檢查新郵件是否已被使用
+            if User.query.filter_by(email=data['email']).first():
+                return jsonify({'error': '此電子郵件已被使用'}), 400
+            
+            # 生成驗證碼
+            code = VerificationCode.generate_code()
+            
+            # 將舊的驗證碼標記為已使用
+            old_codes = VerificationCode.query.filter_by(email=data['email'], is_used=False).all()
+            for old_code in old_codes:
+                old_code.is_used = True
+            
+            # 創建新的驗證碼
+            verification = VerificationCode(email=data['email'], code=code)
+            db.session.add(verification)
+            
+            # 發送郵件
+            email_sent = send_verification_email(data['email'], code)
+            
+            if not email_sent:
+                db.session.rollback()
+                return jsonify({'error': '郵件發送失敗，請稍後再試'}), 500
+            
+            # 暫時不更新郵件，等驗證後再更新
+            return jsonify({
+                'success': True,
+                'message': '驗證碼已發送至新郵箱，請驗證後再更新郵件',
+                'email': data['email']
+            })
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': '賬戶信息更新成功'})
+    
+    return jsonify({
+        'username': current_user.username,
+        'email': current_user.email
+    })
+
+@auth_bp.route('/api/change-password', methods=['POST'])
+@login_required
+def api_change_password():
+    """修改密碼 API"""
+    try:
+        data = request.get_json()
+        
+        # 驗證必填欄位
+        if not data.get('current_password') or not data.get('new_password'):
+            return jsonify({'error': '所有欄位為必填'}), 400
+        
+        current_password = data['current_password']
+        new_password = data['new_password']
+        
+        # 驗證當前密碼
+        if not current_user.check_password(current_password):
+            return jsonify({'error': '當前密碼錯誤'}), 400
+        
+        # 驗證新密碼長度
+        if len(new_password) < 8:
+            return jsonify({'error': '新密碼至少需要8個字元'}), 400
+        
+        # 更新密碼
+        current_user.set_password(new_password)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': '密碼修改成功'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"修改密碼錯誤: {e}")
+        return jsonify({'error': f'修改失敗: {str(e)}'}), 500
+
+@auth_bp.route('/api/verify-email', methods=['POST'])
+@login_required
+def api_verify_email():
+    """驗證郵件 API"""
+    try:
+        data = request.get_json()
+        
+        # 驗證必填欄位
+        if not data.get('email') or not data.get('verification_code'):
+            return jsonify({'error': '所有欄位為必填'}), 400
+        
+        email = data['email']
+        verification_code = data['verification_code']
+        
+        # 驗證驗證碼
+        verification = VerificationCode.is_valid(email, verification_code)
+        if not verification:
+            return jsonify({'error': '驗證碼無效或已過期'}), 400
+        
+        # 標記驗證碼為已使用
+        verification.is_used = True
+        
+        # 更新郵件
+        current_user.email = email
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': '郵件驗證成功，已更新郵箱'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"驗證郵件錯誤: {e}")
+        return jsonify({'error': f'驗證失敗: {str(e)}'}), 500

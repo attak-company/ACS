@@ -1,7 +1,7 @@
 # Web 模組 - 儀表板相關功能
 # 負負責：儀表板路徑與邏輯
 
-from flask import Blueprint, render_template, request, jsonify, flash
+from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from flask_login import login_required, current_user
 from shared.database import db
 from shared.models import Merchant, Service, Schedule, Appointment
@@ -73,16 +73,21 @@ def api_services():
     
     if request.method == 'POST':
         data = request.json
-        service = Service(
-            merchant_id=merchant.id,
-            name=data['name'],
-            description=data.get('description', ''),
-            duration=data['duration'],
-            price=data['price']
-        )
-        db.session.add(service)
-        db.session.commit()
-        return jsonify({'success': True, 'id': service.id})
+        try:
+            service = Service(
+                merchant_id=merchant.id,
+                name=data['name'],
+                description=data.get('description', ''),
+                duration=int(data['duration']),
+                price=int(float(data['price'])),
+                color=data.get('color', '#007bff')
+            )
+            db.session.add(service)
+            db.session.commit()
+            return jsonify({'success': True, 'id': service.id})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 400
     
     services = Service.query.filter_by(merchant_id=merchant.id).all()
     return jsonify([{
@@ -90,10 +95,11 @@ def api_services():
         'name': s.name,
         'description': s.description,
         'duration': s.duration,
-        'price': s.price
+        'price': s.price,
+        'color': getattr(s, 'color', '#007bff')
     } for s in services])
 
-@dashboard_bp.route('/api/services/<int:service_id>', methods=['PUT', 'DELETE'])
+@dashboard_bp.route('/api/services/<int:service_id>', methods=['GET', 'PUT', 'DELETE'])
 @login_required
 def api_service_detail(service_id):
     """服務項目詳情 API"""
@@ -105,19 +111,41 @@ def api_service_detail(service_id):
     if not service:
         return jsonify({'error': '服務項目不存在'}), 404
     
-    if request.method == 'PUT':
+    if request.method == 'GET':
+        return jsonify({
+            'id': service.id,
+            'name': service.name,
+            'description': service.description,
+            'duration': service.duration,
+            'price': service.price,
+            'color': getattr(service, 'color', '#007bff')
+        })
+    
+    elif request.method == 'PUT':
         data = request.json
-        service.name = data.get('name', service.name)
-        service.description = data.get('description', service.description)
-        service.duration = data.get('duration', service.duration)
-        service.price = data.get('price', service.price)
-        db.session.commit()
-        return jsonify({'success': True})
+        try:
+            service.name = data.get('name', service.name)
+            service.description = data.get('description', service.description)
+            if 'duration' in data:
+                service.duration = int(data['duration'])
+            if 'price' in data:
+                service.price = int(float(data['price']))
+            if 'color' in data:
+                service.color = data['color']
+            db.session.commit()
+            return jsonify({'success': True})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 400
     
     elif request.method == 'DELETE':
-        db.session.delete(service)
-        db.session.commit()
-        return jsonify({'success': True})
+        try:
+            db.session.delete(service)
+            db.session.commit()
+            return jsonify({'success': True})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 400
 
 @dashboard_bp.route('/api/schedule', methods=['GET', 'POST'])
 @login_required

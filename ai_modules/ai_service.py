@@ -17,27 +17,37 @@ class AIService:
         """初始化 AI 服務"""
         if genai is None:
             raise ImportError("google-generativeai is not installed. Please run: pip install google-generativeai")
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-pro')
+        self.api_key = api_key
+        genai.configure(api_key=self.api_key)
+        # 使用更穩定的 1.5 flash 版本，速度極快
+        self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
     
     def generate_response(self, prompt: str, merchant_name: str, ai_tone: str = "友善專業") -> str:
         """生成 AI 回覆"""
         try:
-            # 建構完整的提示詞
-            full_prompt = f"""
-你是{merchant_name}的AI客服助手。請用{ai_tone}的語氣回覆。
-
-用戶問題：{prompt}
-
-請提供友善、專業且有幫助的回覆。如果需要預約，請引導用戶提供相關資訊。
-"""
+            # 確保 API 金鑰已配置
+            if not self.api_key:
+                return self._get_fallback_response(prompt, merchant_name)
+                
+            # 極簡化提示詞並限制輸出長度，將思考時間降到最低
+            full_prompt = f"你是{merchant_name}客服，用{ai_tone}口吻極簡回覆：{prompt}"
             
-            # 生成回覆
-            response = self.model.generate_content(full_prompt)
-            return response.text
+            # 使用明確的 api_key 重新配置，避免認證丟失
+            genai.configure(api_key=self.api_key)
+            model = genai.GenerativeModel('gemini-1.5-flash')
             
+            response = model.generate_content(
+                full_prompt,
+                generation_config={
+                    "temperature": 0.4,
+                    "top_p": 1,
+                    "top_k": 32,
+                    "max_output_tokens": 100,
+                }
+            )
+            return response.text.strip()
         except Exception as e:
-            print(f"AI 生成回覆錯誤: {e}")
+            print(f"DEBUG SPEED: AI 生成回覆錯誤: {e}")
             return self._get_fallback_response(prompt, merchant_name)
     
     def _get_fallback_response(self, user_message: str, merchant_name: str) -> str:
@@ -70,7 +80,7 @@ class AIService:
         return f"感謝您的來信！我是{merchant_name}的AI客服助手。有什麼可以幫助您的嗎？您可以詢問營業時間、服務項目或直接預約。"
     
     def analyze_intent(self, message: str) -> dict:
-        """分析用戶意圖"""
+        """優化意圖分析：優先使用關鍵字匹配，完全移除 AI 呼叫以達成秒回"""
         message_lower = message.lower()
         
         intent = {
@@ -82,29 +92,39 @@ class AIService:
             'contact_info': False
         }
         
-        # 問候語
-        greetings = ['你好', '您好', 'hi', 'hello', '哈囉']
-        intent['greeting'] = any(greeting in message_lower for greeting in greetings)
-        
-        # 預約請求
-        appointment_keywords = ['預約', '約', '訂位', '預定', 'booking', 'appointment']
-        intent['appointment_request'] = any(keyword in message_lower for keyword in appointment_keywords)
-        
-        # 服務查詢
-        service_keywords = ['服務', '項目', 'service', 'treatment']
-        intent['service_inquiry'] = any(keyword in message_lower for keyword in service_keywords)
-        
-        # 價格查詢
-        price_keywords = ['價格', '多少錢', '費用', '價錢', 'price', 'cost', '費用']
-        intent['price_inquiry'] = any(keyword in message_lower for keyword in price_keywords)
-        
+        # 預約請求 (最優先判定)
+        appointment_keywords = ['預約', '約', '訂位', '預定', '想約', '有空嗎', 'booking', 'appointment']
+        if any(keyword in message_lower for keyword in appointment_keywords):
+            intent['appointment_request'] = True
+            return intent
+            
         # 營業時間查詢
-        hours_keywords = ['營業時間', '開門時間', '營業', 'hours', 'open', 'close']
-        intent['hours_inquiry'] = any(keyword in message_lower for keyword in hours_keywords)
-        
+        hours_keywords = ['營業時間', '幾點', '開門', '關門', '營業', 'hours', 'open', 'close']
+        if any(keyword in message_lower for keyword in hours_keywords):
+            intent['hours_inquiry'] = True
+            return intent
+
+        # 價格查詢
+        price_keywords = ['價格', '多少錢', '費用', '價錢', 'price', 'cost', '錢']
+        if any(keyword in message_lower for keyword in price_keywords):
+            intent['price_inquiry'] = True
+            return intent
+            
+        # 服務查詢
+        service_keywords = ['服務', '項目', 'service', 'treatment', '內容']
+        if any(keyword in message_lower for keyword in service_keywords):
+            intent['service_inquiry'] = True
+            return intent
+            
         # 聯絡資訊
-        contact_keywords = ['電話', '地址', '位置', '聯絡', 'phone', 'address', 'location']
-        intent['contact_info'] = any(keyword in message_lower for keyword in contact_keywords)
+        contact_keywords = ['電話', '地址', '位置', '聯絡', 'phone', 'address', 'location', '在哪']
+        if any(keyword in message_lower for keyword in contact_keywords):
+            intent['contact_info'] = True
+            return intent
+
+        # 問候語
+        greetings = ['你好', '您好', 'hi', 'hello', '哈囉', '有人嗎']
+        intent['greeting'] = any(greeting in message_lower for greeting in greetings)
         
         return intent
     

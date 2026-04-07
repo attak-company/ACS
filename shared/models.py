@@ -88,6 +88,7 @@ class Service(db.Model):
     description = db.Column(db.Text)
     duration = db.Column(db.Integer, nullable=False)  # 分鐘
     price = db.Column(db.Integer, nullable=False)  # 金額
+    color = db.Column(db.String(20), default='#007bff')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):
