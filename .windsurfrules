@@ -1,0 +1,124 @@
+# Windsurf AI 協作守則
+
+## 🎯 **專案結構與責任劃分**
+
+### **📍 總體結構**
+```
+/ACS
+├── app.py                  # 總入口（只負責啟動與掛載路由）
+├── .windsurfrules          # AI 協作守則（本文件）
+├── requirements.txt        # 專案套件清單
+├── .env                   # 環境變數配置
+│
+├── /web_modules            # 【夥伴 A 的地盤】網站區
+│   ├── auth.py            # 負責：登入、註冊、忘記密碼
+│   ├── dashboard.py       # 負負責：儀表板路徑與邏輯
+│   ├── routes.py          # 負責：其他網站路由
+│   ├── templates/         # HTML 檔案 (宣傳頁、登入頁、儀表板)
+│   └── static/           # CSS / JS 檔案
+│
+├── /ai_modules             # 【夥伴 B 的地盤】AI 客服區
+│   ├── webhook.py         # 負責：LINE Webhook 的入口
+│   ├── ai_service.py      # 負責：串接 Gemini AI、處理 Prompt
+│   ├── line_bot.py        # 負責：LINE Messaging API 的傳送回覆
+│   └── ai_routes.py      # 負責：AI 相關的 API 路由
+│
+├── /shared                 # 【共同緩衝區】資料交換
+│   ├── database.py         # 資料庫連線 (如 postgreSQL)
+│   ├── models.py           # 定義資料表 (User, Token, Settings)
+│   └── utils.py           # 共用工具函數
+│
+└── /docs                   # 協作文件 (定義 API 規格)
+    ├── api_specs.md       # API 規格文檔
+    ├── collaboration.md   # 協作指南
+    └── deployment.md     # 部署說明
+```
+
+## 🚫 **嚴格禁止區域**
+
+### **夥伴 A (Web 模組) - 禁止修改**
+- ❌ `/ai_modules/` 下的任何檔案
+- ❌ `/shared/database.py` (只能讀取，不能修改結構)
+- ❌ `/shared/models.py` (只能讀取，不能修改結構)
+- ❌ LINE Bot 相關的任何程式碼
+
+### **夥伴 B (AI 模組) - 禁止修改**
+- ❌ `/web_modules/` 下的任何檔案
+- ❌ `/web_modules/templates/` 下的任何 HTML 檔案
+- ❌ `/web_modules/static/` 下的任何 CSS/JS 檔案
+- ❌ 登入、註、註冊、儀表板相關的任何程式碼
+
+## ✅ **允許的協作區域**
+
+### **共同緩衝區 `/shared/`**
+- ✅ **夥伴 A**: 可以新增工具函數到 `utils.py`
+- ✅ **夥伴 B**: 可以新增工具函數到 `utils.py`
+- ✅ **雙方**: 可以讀取 `database.py` 和 `models.py`
+- ❌ **雙方**: 禁止修改 `database.py` 和 `models.py` 的結構
+
+### **文檔區 `/docs/`**
+- ✅ **雙方**: 可以新增和修改文檔
+- ✅ **夥伴 A**: 可以更新 API 規格
+- ✅ **夥伴 B**: 可以更新 AI 相關文檔
+
+## 🔄 **資料交換規則**
+
+### **API 介面定義**
+- **夥伴 A** 提供 Web API 給 **夥伴 B** 調用
+- **夥伴 B** 提供 AI 服務 API 給 **夥伴 A** 調用
+- 所有 API 介面必須在 `/docs/api_specs.md` 中定義
+
+### **資料庫存取**
+- **雙方** 都通過 `/shared/database.py` 存取資料庫
+- **雙方** 都使用 `/shared/models.py` 的資料模型
+- 任何資料結構變更需要雙方協同意
+
+## ⚠️ **衝突處理機制**
+
+### **檔案修改衝突**
+1. **優先權**: 誰先修改誰優先
+2. **協商**: 如有衝突，在 `/docs/collaboration.md` 中記錄
+3. **備份**: 修改前自動備份原始檔案
+
+### **功能重疊處理**
+1. **明確分工**: 在 `/docs/collaboration.md` 中明確定義
+2. **API 介面**: 通過 API 介面而非直接修改對方檔案
+3. **版本控制**: 使用 Git 追蹤所有修改
+
+## 🎯 **最佳實踐**
+
+### **夥伴 A (Web 模組)**
+- ✅ 專注於用戶介面和體驗
+- ✅ 處理登入、註冊、忘記密碼流程
+- ✅ 管理儀表板和店家資料
+- ✅ 提供清晰的 API 介面給 AI 模組
+
+### **夥伴 B (AI 模組)**
+- ✅ 專注於 AI 功能和 LINE Bot
+- ✅ 處理 Webhook 和 AI 回覆
+- ✅ 優化 Prompt 和 AI 效能
+- ✅ 提供穩定的 AI 服務 API
+
+### **共同責任**
+- ✅ 維護文檔更新
+- ✅ 測試 API 介面
+- ✅ 處理錯誤和例外
+- ✅ 確保系統穩定性
+
+## 🚨 **緊急處理程序**
+
+### **系統故障**
+1. **立即通知**: 在協作頻道中通知對方
+2. **快速診斷**: 確定是哪個模組的問題
+3. **協同修復**: 按照責任劃分進行修復
+4. **文檔更新**: 修復後更新相關文檔
+
+### **需求變更**
+1. **影響評估**: 評估對另一個模組的影響
+2. **協商討論**: 在 `/docs/collaboration.md` 中討論
+3. **API 調整**: 如需要，調整 API 介面
+4. **同步更新**: 雙方同步更新相關程式
+
+---
+
+**🎯 重要提醒：嚴格遵守責任劃分，確保協作順暢！**
