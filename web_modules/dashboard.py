@@ -42,10 +42,6 @@ def api_merchant():
         merchant.ai_tone = data.get('ai_tone', merchant.ai_tone)
         merchant.line_channel_access_token = data.get('line_channel_access_token', merchant.line_channel_access_token)
         merchant.line_channel_secret = data.get('line_channel_secret', merchant.line_channel_secret)
-        merchant.instagram_username = data.get('instagram_username', merchant.instagram_username)
-        merchant.instagram_url = data.get('instagram_url', merchant.instagram_url)
-        merchant.instagram_page_access_token = data.get('instagram_page_access_token', merchant.instagram_page_access_token)
-        merchant.instagram_verify_token = data.get('instagram_verify_token', merchant.instagram_verify_token)
         
         db.session.commit()
         return jsonify({'success': True})
@@ -64,11 +60,7 @@ def api_merchant():
         'arrival_info': merchant.arrival_info,
         'ai_tone': merchant.ai_tone,
         'line_channel_access_token': merchant.line_channel_access_token,
-        'line_channel_secret': merchant.line_channel_secret,
-        'instagram_username': merchant.instagram_username,
-        'instagram_url': merchant.instagram_url,
-        'instagram_page_access_token': merchant.instagram_page_access_token,
-        'instagram_verify_token': merchant.instagram_verify_token
+        'line_channel_secret': merchant.line_channel_secret
     })
 
 @dashboard_bp.route('/api/services', methods=['GET', 'POST'])

@@ -60,17 +60,11 @@ class Merchant(db.Model):
     arrival_info = db.Column(db.Text)
     ai_tone = db.Column(db.String(50), default='友善專業')
     
-    # LINE Bot 配置
+    # LINE Bot Configuration
     line_channel_access_token = db.Column(db.String(200))
     line_channel_secret = db.Column(db.String(200))
     
-    # Instagram 配置
-    instagram_username = db.Column(db.String(100))
-    instagram_url = db.Column(db.String(255))
-    instagram_page_access_token = db.Column(db.String(255))
-    instagram_verify_token = db.Column(db.String(120))
-    
-    # AI 配置
+    # AI Configuration
     google_gemini_api_key = db.Column(db.String(200))
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

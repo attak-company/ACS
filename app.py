@@ -30,10 +30,15 @@ def create_app():
     app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key')
     app.config['DEBUG'] = os.getenv('FLASK_ENV', 'development') == 'development'
     
-    # URL 配置
-    # app.config['SERVER_NAME'] = 'localhost' # 移除或修正此行以避免 404
+    # URL and Session Configuration
+    # app.config['SERVER_NAME'] = 'localhost' # ngrok needs this to be flexible
     app.config['APPLICATION_ROOT'] = '/'
-    app.config['PREFERRED_URL_SCHEME'] = 'http'
+    app.config['PREFERRED_URL_SCHEME'] = 'https'  # ngrok uses https
+    
+    # Session configuration for ngrok
+    app.config['SESSION_COOKIE_SECURE'] = False  # Set to True if using HTTPS
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allow cross-origin for ngrok
     
     # 初始化資料庫
     init_database(app)
