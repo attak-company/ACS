@@ -997,7 +997,7 @@
             <nav class="sidebar">
                 <div class="sidebar-nav">
                     <a href="#" class="sidebar-nav-item active" data-section="profile">
-                        <i class="fas fa-store"></i> 店家資料
+                        <i class="fas fa-store"></i> 店家設定
                     </a>
                     <a href="#" class="sidebar-nav-item" data-section="services">
                         <i class="fas fa-concierge-bell"></i> 服務項目
@@ -1027,7 +1027,7 @@
         <main class="main-content">
             <!-- Shopify-style Top Bar -->
             <header class="top-bar">
-                    <h1 class="page-title" id="section-title">店家資料</h1>
+                    <h1 class="page-title" id="section-title">店家設定</h1>
                 
                 <div class="page-actions">
                     <button class="btn btn-outline" onclick="refreshCurrentSection()">
@@ -1190,8 +1190,29 @@
                                     <input type="text" class="form-control" id="line-secret" placeholder="請輸入 LINE Channel Secret">
                                     <div class="form-text">從 LINE Developers Console 取得</div>
                                 </div>
+                                <hr>
+                                <div class="form-group">
+                                    <label class="form-label">Instagram 帳號</label>
+                                    <input type="text" class="form-control" id="instagram-username" placeholder="例如：your_brand">
+                                    <div class="form-text">填寫 IG 使用者名稱（不需 @）</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Instagram 連結</label>
+                                    <input type="url" class="form-control" id="instagram-url" placeholder="https://instagram.com/your_brand">
+                                    <div class="form-text">可選，建議填完整網址</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">IG Page Access Token</label>
+                                    <input type="text" class="form-control" id="instagram-access-token" placeholder="請輸入 Meta Graph API Page Access Token">
+                                    <div class="form-text">用於回覆 Instagram 訊息（必填）</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">IG Verify Token</label>
+                                    <input type="text" class="form-control" id="instagram-verify-token" placeholder="自訂一組驗證字串，例如 ig_verify_123">
+                                    <div class="form-text">在 Meta Webhook 驗證時需與後台填寫一致（必填）</div>
+                                </div>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> 儲存 LINE 設定
+                                    <i class="fas fa-save"></i> 儲存 LINE/IG 設定
                                 </button>
                             </form>
                         </div>
@@ -1217,6 +1238,17 @@
                                 <div class="form-text">請將此 URL 設定到 LINE Developers Console</div>
                             </div>
 
+                            <div class="form-group mb-4">
+                                <label class="form-label">您的 IG Webhook URL</label>
+                                <div class="d-flex gap-3">
+                                    <input type="text" class="form-control" id="instagram-webhook-url" readonly>
+                                    <button class="btn btn-outline" onclick="copyInstagramWebhookUrl()">
+                                        <i class="fas fa-copy"></i> 複製
+                                    </button>
+                                </div>
+                                <div class="form-text">請將此 URL 設定到 Meta App 的 Instagram Webhooks</div>
+                            </div>
+
                             <div class="alert alert-info mb-4">
                                 <i class="fas fa-info-circle"></i> 設定步驟：
                                 <ol class="mb-0 mt-2">
@@ -1236,6 +1268,18 @@
                                     <li>每個用戶都有獨立的 Webhook URL</li>
                                     <li>設定完成後，請測試 LINE Bot 是否正常回覆</li>
                                 </ul>
+                            </div>
+
+                            <div class="alert alert-info mt-4">
+                                <i class="fab fa-instagram"></i> IG 對話串接步驟（給商家）：
+                                <ol class="mb-0 mt-2">
+                                    <li>前往 <a href="https://developers.facebook.com/" target="_blank">Meta for Developers</a> 建立 App 並加入 Instagram Graph API、Webhooks。</li>
+                                    <li>在 App 內取得 Page Access Token，填入上方「IG Page Access Token」。</li>
+                                    <li>自訂一組 Verify Token，填入上方「IG Verify Token」。</li>
+                                    <li>到 Webhooks 設定 Instagram，Callback URL 填「IG Webhook URL」，Verify Token 填同一組字串。</li>
+                                    <li>訂閱 Instagram 訊息事件（messages / messaging_postbacks 等）。</li>
+                                    <li>完成後用 IG 私訊商家帳號，系統會自動以 AI 回覆。</li>
+                                </ol>
                             </div>
                         </div>
                 </div>
@@ -1635,7 +1679,7 @@
 
                 // Update page title
                 const titles = {
-                    'profile': '店家資料',
+                    'profile': '店家設定',
                     'services': '服務項目',
                     'schedule': '營業時間',
                     'calendar': '行事曆',
@@ -2092,6 +2136,10 @@
                     if (data.line_channel_secret) {
                         document.getElementById('line-secret').value = '已設定';
                     }
+                    document.getElementById('instagram-username').value = data.instagram_username || '';
+                    document.getElementById('instagram-url').value = data.instagram_url || '';
+                    document.getElementById('instagram-access-token').value = data.instagram_page_access_token || '';
+                    document.getElementById('instagram-verify-token').value = data.instagram_verify_token || '';
                 })
                 .catch(error => console.error('Error loading LINE settings:', error));
 
@@ -2102,6 +2150,9 @@
             if (usernameElement) {
                 const username = usernameElement.dataset.username;
                 webhookUrl = `${window.location.origin}/webhook/${username}`;
+                document.getElementById('instagram-webhook-url').value = `${window.location.origin}/webhook/instagram/${username}`;
+            } else {
+                document.getElementById('instagram-webhook-url').value = `${window.location.origin}/webhook/instagram`;
             }
             
             document.getElementById('webhook-url').value = webhookUrl;
@@ -2111,7 +2162,11 @@
         function saveLineSettings() {
             const data = {
                 line_channel_access_token: document.getElementById('line-access-token').value,
-                line_channel_secret: document.getElementById('line-secret').value
+                line_channel_secret: document.getElementById('line-secret').value,
+                instagram_username: document.getElementById('instagram-username').value,
+                instagram_url: document.getElementById('instagram-url').value,
+                instagram_page_access_token: document.getElementById('instagram-access-token').value,
+                instagram_verify_token: document.getElementById('instagram-verify-token').value
             };
 
             fetch('/api/merchant', {
@@ -2123,7 +2178,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                showAlert('LINE 設定已儲存', 'success');
+                showAlert('LINE/IG 設定已儲存', 'success');
                 loadLineSettings();
             })
             .catch(error => {
@@ -2241,6 +2296,13 @@
             input.select();
             document.execCommand('copy');
             showAlert('Webhook URL 已複製', 'success');
+        }
+
+        function copyInstagramWebhookUrl() {
+            const input = document.getElementById('instagram-webhook-url');
+            input.select();
+            document.execCommand('copy');
+            showAlert('IG Webhook URL 已複製', 'success');
         }
 
         function editAppointment(id) {

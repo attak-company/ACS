@@ -20,6 +20,24 @@ def init_db():
                 print("ℹ️ Column 'color' already exists in 'services' table")
             else:
                 print(f"❌ Error adding column: {e}")
+
+        # 3. 手動為 merchants 資料表新增 Instagram 欄位 (如果不存在)
+        for sql, column_name in [
+            ("ALTER TABLE merchants ADD COLUMN instagram_username VARCHAR(100)", "instagram_username"),
+            ("ALTER TABLE merchants ADD COLUMN instagram_url VARCHAR(255)", "instagram_url"),
+            ("ALTER TABLE merchants ADD COLUMN instagram_page_access_token VARCHAR(255)", "instagram_page_access_token"),
+            ("ALTER TABLE merchants ADD COLUMN instagram_verify_token VARCHAR(120)", "instagram_verify_token"),
+        ]:
+            try:
+                db.session.execute(text(sql))
+                db.session.commit()
+                print(f"✅ Successfully added '{column_name}' column to 'merchants' table")
+            except Exception as e:
+                db.session.rollback()
+                if "duplicate column name" in str(e).lower() or "already exists" in str(e).lower():
+                    print(f"ℹ️ Column '{column_name}' already exists in 'merchants' table")
+                else:
+                    print(f"❌ Error adding '{column_name}' column: {e}")
                 
         print("✅ Database maintenance completed")
 
