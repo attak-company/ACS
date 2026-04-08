@@ -44,8 +44,8 @@ class LineBotHandler:
         self.handler.add(MessageEvent, message=TextMessage)(self.handle_message)
         self.handler.add(PostbackEvent)(self.handle_postback)
         
-        # 初始化 AI 服務
-        self.ai_service = AIService(merchant.google_gemini_api_key)
+        # Initialize AI service
+        self.ai_service = AIService()  # Use environment variable for API key
     
     def handle_webhook(self, body: str, signature: str):
         """處理 Webhook 請求"""

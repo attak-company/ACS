@@ -9,32 +9,42 @@ except ImportError:
 
 from typing import Optional
 import re
+import os
 
 class AIService:
     """AI 服務類別"""
     
-    def __init__(self, api_key: str):
-        """初始化 AI 服務"""
+    def __init__(self, api_key: str = None):
+        """Initialize AI service"""
         if genai is None:
             raise ImportError("google-generativeai is not installed. Please run: pip install google-generativeai")
-        self.api_key = api_key
-        genai.configure(api_key=self.api_key)
-        # 使用更穩定的 1.5 flash 版本，速度極快
-        self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        
+        # Use provided API key or fallback to environment variable
+        self.api_key = api_key or os.getenv('GOOGLE_GEMINI_API_KEY')
+        
+        if not self.api_key:
+            print("Warning: No Gemini API key provided. AI responses will use fallback rules only.")
+        
+        if self.api_key:
+            genai.configure(api_key=self.api_key)
+            # Use available flash version for ultra-fast responses
+            self.model = genai.GenerativeModel('models/gemini-2.5-flash')
+        else:
+            self.model = None
     
-    def generate_response(self, prompt: str, merchant_name: str, ai_tone: str = "友善專業") -> str:
-        """生成 AI 回覆"""
+    def generate_response(self, prompt: str, merchant_name: str, ai_tone: str = "friendly professional") -> str:
+        """Generate AI response"""
         try:
-            # 確保 API 金鑰已配置
-            if not self.api_key:
+            # Ensure API key is configured
+            if not self.api_key or not self.model:
                 return self._get_fallback_response(prompt, merchant_name)
                 
-            # 極簡化提示詞並限制輸出長度，將思考時間降到最低
-            full_prompt = f"你是{merchant_name}客服，用{ai_tone}口吻極簡回覆：{prompt}"
+            # Simplify prompt and limit output length for minimal thinking time
+            full_prompt = f"You are {merchant_name} customer service, reply in {ai_tone} tone: {prompt}"
             
-            # 使用明確的 api_key 重新配置，避免認證丟失
+            # Reconfigure with explicit api_key to avoid authentication loss
             genai.configure(api_key=self.api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('models/gemini-2.5-flash')
             
             response = model.generate_content(
                 full_prompt,
@@ -47,7 +57,7 @@ class AIService:
             )
             return response.text.strip()
         except Exception as e:
-            print(f"DEBUG SPEED: AI 生成回覆錯誤: {e}")
+            print(f"DEBUG SPEED: AI generation error: {e}")
             return self._get_fallback_response(prompt, merchant_name)
     
     def _get_fallback_response(self, user_message: str, merchant_name: str) -> str:
